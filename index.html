@@ -8,12 +8,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body { margin:0; font-family: Arial; background:#f3f4f6; }
+body {
+  margin:0;
+  font-family: Arial;
+  background:#f3f4f6;
+}
 
-header { padding:20px; }
+/* HEADER */
+header {
+  padding:20px;
+}
 .title { font-size:26px; font-weight:bold; }
 .subtitle { font-size:12px; color:#777; }
 
+/* DASHBOARD */
 .dashboard {
   display:flex;
   gap:10px;
@@ -22,60 +30,75 @@ header { padding:20px; }
 .card {
   flex:1;
   background:#fff;
-  padding:10px;
-  border-radius:10px;
+  padding:15px;
+  border-radius:12px;
   text-align:center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+/* MENU */
 .menu {
   display:flex;
   margin:15px;
-  background:#ddd;
-  border-radius:10px;
+  background:#e5e7eb;
+  border-radius:12px;
+  overflow:hidden;
 }
 .menu button {
   flex:1;
-  padding:10px;
+  padding:12px;
   border:none;
   background:none;
+  font-weight:bold;
+  cursor:pointer;
 }
-.active {
+.menu button.active {
   background:#065f46;
   color:#fff;
-  border-radius:10px;
 }
 
+/* CONTAINER */
 .container { padding:15px; }
 
 .box {
   background:#fff;
   padding:15px;
-  border-radius:10px;
+  border-radius:12px;
   margin-bottom:10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-input, select {
+input {
   width:100%;
-  padding:10px;
+  padding:12px;
   margin-top:8px;
   border-radius:8px;
   border:1px solid #ccc;
 }
 
+/* BOTÕES */
+.btn-group {
+  display:flex;
+  gap:10px;
+}
 button {
+  flex:1;
   margin-top:10px;
-  padding:10px;
+  padding:12px;
   border:none;
   border-radius:8px;
   background:#065f46;
   color:white;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 .item {
   background:#fff;
-  padding:10px;
-  border-radius:10px;
+  padding:12px;
+  border-radius:12px;
   margin-top:10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 </style>
 </head>
@@ -94,8 +117,8 @@ button {
 </div>
 
 <div class="menu">
-  <button onclick="trocar('estoque')" class="active">Estoque</button>
-  <button onclick="trocar('hist')">Histórico</button>
+  <button onclick="trocar('estoque', this)" class="active">Estoque</button>
+  <button onclick="trocar('hist', this)">Histórico</button>
 </div>
 
 <div class="container" id="conteudo"></div>
@@ -109,10 +132,10 @@ function salvar(){
   localStorage.setItem("historico", JSON.stringify(historico));
 }
 
-/* TROCAR TELA */
-function trocar(tela){
+/* TROCAR TELA (CORRIGIDO) */
+function trocar(tela, el){
   document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
-  event.target.classList.add("active");
+  el.classList.add("active");
 
   if(tela=="estoque") telaEstoque();
   if(tela=="hist") telaHist();
@@ -123,13 +146,18 @@ function telaEstoque(){
   conteudo.innerHTML = `
     <div class="box">
       <h3>Adicionar Produto</h3>
-      <input id="nome" placeholder="Nome">
+      <input id="nome" placeholder="Nome do produto">
       <input id="qtd" type="number" placeholder="Quantidade">
-      <button onclick="addProduto()">Adicionar</button>
-      <button onclick="gerarPDF()">📄 Gerar Relatório PDF</button>
+
+      <div class="btn-group">
+        <button onclick="addProduto()">Adicionar</button>
+        <button onclick="gerarPDF()">PDF</button>
+      </div>
     </div>
+
     <div id="lista"></div>
   `;
+
   listarProdutos();
 }
 
@@ -144,6 +172,7 @@ function addProduto(){
   telaEstoque();
 }
 
+/* LISTAR */
 function listarProdutos(){
   let lista = document.getElementById("lista");
   lista.innerHTML="";
@@ -153,8 +182,11 @@ function listarProdutos(){
       <div class="item">
         <b>${p.nome}</b><br>
         Qtd: ${p.qtd}<br><br>
-        <button onclick="mov(${i},1)">Entrada</button>
-        <button onclick="mov(${i},-1)">Saída</button>
+
+        <div class="btn-group">
+          <button onclick="mov(${i},1)">Entrada</button>
+          <button onclick="mov(${i},-1)">Saída</button>
+        </div>
       </div>
     `;
   });
@@ -162,9 +194,9 @@ function listarProdutos(){
   atualizarDash();
 }
 
-/* MOVIMENTAÇÃO COM RESPONSÁVEL */
+/* MOVIMENTAÇÃO */
 function mov(i,val){
-  let responsavel = prompt("Nome do responsável:");
+  let responsavel = prompt("Responsável:");
   let qtd = parseInt(prompt("Quantidade:"));
 
   if(!responsavel || !qtd) return;
@@ -178,8 +210,8 @@ function mov(i,val){
   historico.push({
     produto: produtos[i].nome,
     tipo: val > 0 ? "ENTRADA" : "SAÍDA",
-    qtd: qtd,
-    responsavel: responsavel,
+    qtd,
+    responsavel,
     data: new Date().toLocaleString()
   });
 
@@ -196,10 +228,9 @@ function telaHist(){
     div.innerHTML += `
       <div class="item">
         <b>${h.produto}</b><br>
-        Tipo: ${h.tipo}<br>
-        Qtd: ${h.qtd}<br>
+        ${h.tipo} - ${h.qtd}<br>
         Resp: ${h.responsavel}<br>
-        Data: ${h.data}
+        ${h.data}
       </div>
     `;
   });
@@ -219,24 +250,17 @@ function atualizarDash(){
   z.innerText = zerados;
 }
 
-/* PDF PROFISSIONAL */
+/* PDF */
 function gerarPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text("RELATÓRIO DE ESTOQUE", 10, 15);
+  doc.text("Relatório de Estoque", 10, 10);
 
-  doc.setFontSize(10);
-  doc.text("Gerado em: " + new Date().toLocaleString(), 10, 22);
-
-  let y = 30;
-
-  produtos.forEach(p => {
-    doc.setFontSize(12);
-    doc.text("Produto: " + p.nome, 10, y);
-    doc.text("Quantidade: " + p.qtd, 10, y+6);
-    y += 15;
+  let y = 20;
+  produtos.forEach(p=>{
+    doc.text(`${p.nome} - Qtd: ${p.qtd}`, 10, y);
+    y += 8;
   });
 
   doc.save("estoque.pdf");
