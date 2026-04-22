@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Estoque PRO</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -46,7 +45,7 @@ body {
   padding:20px;
 }
 
-/* CARDS */
+/* DASH */
 .dashboard {
   display:flex;
   gap:15px;
@@ -85,9 +84,9 @@ button.action {
   border:none;
   border-radius:10px;
   width:100%;
+  cursor:pointer;
 }
 
-/* ITEM */
 .item {
   background:#fff;
   padding:15px;
@@ -148,6 +147,7 @@ function telaEstoque(){
       <input id="qtd" type="number" placeholder="Quantidade">
       <button class="action" onclick="addProduto()">Adicionar</button>
     </div>
+
     <div id="lista"></div>
   `;
   listar();
@@ -180,14 +180,18 @@ function listar(){
   atualizar();
 }
 
-/* SAÍDA COM LISTA */
+/* SAÍDA */
 function telaMov(){
+  let agora = new Date().toLocaleString();
+
   conteudo.innerHTML = `
     <div class="box">
-      <h3>Nova Saída</h3>
+      <h3>📦 Nova Saída</h3>
 
       <input id="evento" placeholder="Evento / Local">
       <input id="resp" placeholder="Responsável">
+
+      <small>🕒 ${agora}</small>
 
       <select id="prodSel"></select>
       <input id="qtdItem" type="number" placeholder="Quantidade">
@@ -209,21 +213,43 @@ function telaMov(){
 }
 
 function addItem(){
-  let i = prodSel.value;
-  let qtd = parseInt(qtdItem.value);
+  let i = document.getElementById("prodSel").value;
+  let qtd = parseInt(document.getElementById("qtdItem").value);
 
   if(!qtd) return alert("Informe quantidade");
-
   if(produtos[i].qtd < qtd) return alert("Sem estoque");
 
   itensSaida.push({index:i, nome:produtos[i].nome, qtd});
 
-  listaItens.innerHTML += `<div class="item">${produtos[i].nome} - ${qtd}</div>`;
+  atualizarListaItens();
+}
+
+function atualizarListaItens(){
+  let div = document.getElementById("listaItens");
+  div.innerHTML = "";
+
+  itensSaida.forEach((item, index)=>{
+    div.innerHTML += `
+      <div style="background:#fff;padding:12px;border-radius:10px;margin-top:10px;display:flex;justify-content:space-between;">
+        <div>
+          <b>${item.nome}</b><br>
+          Quantidade: ${item.qtd}
+        </div>
+        <button onclick="removerItem(${index})" style="background:red;color:#fff;border:none;border-radius:6px;padding:5px 10px;">X</button>
+      </div>
+    `;
+  });
+}
+
+function removerItem(i){
+  itensSaida.splice(i,1);
+  atualizarListaItens();
 }
 
 function finalizarSaida(){
-  let evento = evento.value;
-  let resp = resp.value;
+  let evento = document.getElementById("evento").value;
+  let resp = document.getElementById("resp").value;
+  let data = new Date().toLocaleString();
 
   if(!evento || !resp || itensSaida.length==0){
     return alert("Preencha tudo");
@@ -238,7 +264,7 @@ function finalizarSaida(){
     evento,
     responsavel:resp,
     itens:itensSaida,
-    data:new Date().toLocaleString()
+    data
   };
 
   historico.push(registro);
@@ -249,7 +275,7 @@ function finalizarSaida(){
   telaEstoque();
 }
 
-/* PDF ORDEM SERVIÇO */
+/* PDF */
 function gerarPDFSaida(reg){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -294,17 +320,17 @@ function renderHist(lista){
 
     h.innerHTML += `
       <div class="item">
-        <b>${reg.evento}</b><br>
-        ${reg.responsavel}<br>
-        ${itens}<br>
-        ${reg.data}
+        <b>📍 ${reg.evento}</b><br>
+        👷 ${reg.responsavel}<br>
+        📦 ${itens}<br>
+        🕒 ${reg.data}
       </div>
     `;
   });
 }
 
 function filtrar(){
-  let termo = busca.value.toLowerCase();
+  let termo = document.getElementById("busca").value.toLowerCase();
   let filtrado = historico.filter(h=>h.evento.toLowerCase().includes(termo));
   renderHist(filtrado);
 }
@@ -317,9 +343,9 @@ function atualizar(){
     if(p.qtd<=0) z++;
   });
 
-  p.innerText=produtos.length;
-  u.innerText=total;
-  this.z.innerText=z;
+  document.getElementById("p").innerText=produtos.length;
+  document.getElementById("u").innerText=total;
+  document.getElementById("z").innerText=z;
 }
 
 telaEstoque();
