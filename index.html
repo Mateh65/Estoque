@@ -3,87 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estoque PRO</title>
+<title>Estoque App</title>
 
 <style>
 body {
-  font-family: Arial;
-  background: #0f172a;
-  color: #fff;
   margin: 0;
+  font-family: Arial;
+  background: #f3f4f6;
+  color: #333;
 }
 
+/* HEADER */
 header {
-  background: #e11d48;
-  padding: 15px;
-  text-align: center;
-  font-size: 20px;
+  padding: 20px;
+}
+
+.title {
+  font-size: 26px;
   font-weight: bold;
 }
 
+.subtitle {
+  font-size: 12px;
+  color: #6b7280;
+  letter-spacing: 2px;
+}
+
+/* DASHBOARD */
+.dashboard {
+  display: flex;
+  gap: 10px;
+  padding: 0 15px;
+}
+
+.card-top {
+  flex: 1;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.card-top h2 {
+  margin: 0;
+}
+
+.red { color: red; }
+
+/* MENU */
+.menu {
+  display: flex;
+  margin: 15px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.menu button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: none;
+  font-weight: bold;
+}
+
+.menu .active {
+  background: #065f46;
+  color: white;
+}
+
+/* FORM */
 .container {
   padding: 15px;
 }
 
-input, button {
+.box {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+input {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #ddd;
 }
 
-button {
-  background: #e11d48;
-  color: white;
-  font-weight: bold;
-}
-
-.card {
-  background: #1e293b;
-  padding: 10px;
+button.add {
   margin-top: 10px;
+  background: #065f46;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* LISTA */
+.item {
+  background: white;
+  padding: 10px;
   border-radius: 10px;
+  margin-top: 10px;
 }
 
 .low {
-  border: 2px solid red;
-}
-
-.top {
-  display: flex;
-  justify-content: space-between;
-}
-
-.small-btn {
-  width: 48%;
-}
-
-.search {
-  margin-bottom: 10px;
+  border-left: 5px solid red;
 }
 </style>
 </head>
 
 <body>
 
-<header>📦 Estoque PRO</header>
+<header>
+  <div class="subtitle">CONTROLE DE INVENTÁRIO</div>
+  <div class="title">Estoque<span style="color:#065f46;">App</span></div>
+</header>
+
+<div class="dashboard">
+  <div class="card-top">
+    <h2 id="produtos">0</h2>
+    <small>PRODUTOS</small>
+  </div>
+  <div class="card-top">
+    <h2 id="unidades">0</h2>
+    <small>UNIDADES</small>
+  </div>
+  <div class="card-top">
+    <h2 id="zerados" class="red">0</h2>
+    <small>ZERADOS</small>
+  </div>
+</div>
+
+<div class="menu">
+  <button class="active">Estoque</button>
+  <button>Movimentação</button>
+  <button>Categorias</button>
+  <button>Histórico</button>
+</div>
 
 <div class="container">
+  <div class="box">
 
-<input id="search" class="search" placeholder="Buscar produto..." onkeyup="listar()">
+    <h4>ADICIONAR PRODUTO</h4>
 
-<input id="nome" placeholder="Nome do produto">
-<input id="qtd" type="number" placeholder="Quantidade">
-<input id="custo" type="number" placeholder="Valor de custo">
-<input id="venda" type="number" placeholder="Valor de venda">
+    <input id="nome" placeholder="Nome do produto">
+    <input id="qtd" type="number" placeholder="Quantidade">
 
-<button onclick="adicionar()">Adicionar Produto</button>
+    <button class="add" onclick="add()">+ Adicionar</button>
 
-<h3 id="total"></h3>
+  </div>
 
-<div id="lista"></div>
-
+  <div id="lista"></div>
 </div>
 
 <script>
@@ -93,80 +166,41 @@ function salvar() {
   localStorage.setItem("estoque", JSON.stringify(produtos));
 }
 
-function adicionar() {
+function add() {
   let nome = nomeInput.value;
   let qtd = parseInt(qtdInput.value);
-  let custo = parseFloat(custoInput.value);
-  let venda = parseFloat(vendaInput.value);
 
-  if (!nome || !qtd) return alert("Preencha os dados");
+  if (!nome || !qtd) return alert("Preencha");
 
-  produtos.push({ nome, qtd, custo, venda });
-  salvar();
-  limpar();
-  listar();
-}
-
-function limpar() {
-  nomeInput.value = "";
-  qtdInput.value = "";
-  custoInput.value = "";
-  vendaInput.value = "";
-}
-
-function entrada(i) {
-  produtos[i].qtd++;
+  produtos.push({ nome, qtd });
   salvar();
   listar();
-}
-
-function saida(i) {
-  if (produtos[i].qtd > 0) produtos[i].qtd--;
-  salvar();
-  listar();
-}
-
-function excluir(i) {
-  if (confirm("Excluir produto?")) {
-    produtos.splice(i, 1);
-    salvar();
-    listar();
-  }
 }
 
 function listar() {
   let lista = document.getElementById("lista");
-  let busca = document.getElementById("search").value.toLowerCase();
   lista.innerHTML = "";
 
-  let totalLucro = 0;
+  let total = 0;
+  let zerados = 0;
 
   produtos.forEach((p, i) => {
-    if (!p.nome.toLowerCase().includes(busca)) return;
-
-    let lucro = (p.venda - p.custo) * p.qtd;
-    totalLucro += lucro;
+    total += p.qtd;
+    if (p.qtd == 0) zerados++;
 
     lista.innerHTML += `
-      <div class="card ${p.qtd <= 2 ? 'low' : ''}">
-        <div class="top">
-          <b>${p.nome}</b>
-          <button onclick="excluir(${i})">🗑️</button>
-        </div>
-
-        Estoque: ${p.qtd}<br>
-        Lucro total: R$ ${lucro.toFixed(2)}<br><br>
-
-        <div class="top">
-          <button class="small-btn" onclick="entrada(${i})">+ Entrada</button>
-          <button class="small-btn" onclick="saida(${i})">- Saída</button>
-        </div>
+      <div class="item ${p.qtd <= 2 ? 'low' : ''}">
+        <b>${p.nome}</b><br>
+        Quantidade: ${p.qtd}<br><br>
+        <button onclick="produtos[${i}].qtd++; salvar(); listar()">+</button>
+        <button onclick="produtos[${i}].qtd--; salvar(); listar()">-</button>
       </div>
     `;
   });
 
-  document.getElementById("total").innerText = 
-    "💰 Lucro total: R$ " + totalLucro.toFixed(2);
+  document.getElementById("produtos").innerText = produtos.length;
+  document.getElementById("unidades").innerText = total;
+  document.getElementById("zerados").innerText = zerados;
 }
 
 listar();
