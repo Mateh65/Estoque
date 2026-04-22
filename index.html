@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Estoque</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #111;
+  color: #fff;
+  padding: 15px;
+}
+h1 { text-align: center; }
+
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: none;
+  border-radius: 8px;
+}
+
+button {
+  background: #e63946;
+  color: white;
+  font-weight: bold;
+}
+
+.card {
+  background: #222;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.low {
+  border: 2px solid red;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📦 Estoque</h1>
+
+<input id="nome" placeholder="Nome do produto">
+<input id="qtd" type="number" placeholder="Quantidade">
+<input id="custo" type="number" placeholder="Valor de custo">
+<input id="venda" type="number" placeholder="Valor de venda">
+
+<button onclick="adicionar()">Adicionar Produto</button>
+
+<div id="lista"></div>
+
+<script>
+let produtos = JSON.parse(localStorage.getItem("estoque")) || [];
+
+function salvar() {
+  localStorage.setItem("estoque", JSON.stringify(produtos));
+}
+
+function adicionar() {
+  let nome = document.getElementById("nome").value;
+  let qtd = parseInt(document.getElementById("qtd").value);
+  let custo = parseFloat(document.getElementById("custo").value);
+  let venda = parseFloat(document.getElementById("venda").value);
+
+  if (!nome || !qtd) return alert("Preencha os dados");
+
+  produtos.push({ nome, qtd, custo, venda });
+  salvar();
+  listar();
+}
+
+function entrada(i) {
+  produtos[i].qtd++;
+  salvar();
+  listar();
+}
+
+function saida(i) {
+  if (produtos[i].qtd > 0) produtos[i].qtd--;
+  salvar();
+  listar();
+}
+
+function listar() {
+  let lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  produtos.forEach((p, i) => {
+    let lucro = (p.venda - p.custo).toFixed(2);
+
+    lista.innerHTML += `
+      <div class="card ${p.qtd <= 2 ? 'low' : ''}">
+        <b>${p.nome}</b><br>
+        Estoque: ${p.qtd}<br>
+        Lucro: R$ ${lucro}<br><br>
+        <button onclick="entrada(${i})">+ Entrada</button>
+        <button onclick="saida(${i})">- Saída</button>
+      </div>
+    `;
+  });
+}
+
+listar();
+</script>
+
+</body>
+</html>
