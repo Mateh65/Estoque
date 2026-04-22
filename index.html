@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Estoque PRO</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -10,80 +11,86 @@
 <style>
 body {
   margin:0;
-  font-family: Arial;
-  background:#f3f4f6;
-}
-
-header { padding:20px; }
-.title { font-size:26px; font-weight:bold; }
-.subtitle { font-size:12px; color:#777; }
-
-.dashboard {
+  font-family: 'Segoe UI', sans-serif;
+  background:#f1f5f9;
   display:flex;
-  gap:10px;
-  padding:0 15px;
-}
-.card {
-  flex:1;
-  background:#fff;
-  padding:15px;
-  border-radius:12px;
-  text-align:center;
 }
 
-.menu {
-  display:flex;
-  margin:15px;
-  background:#e5e7eb;
-  border-radius:12px;
+/* SIDEBAR */
+.sidebar {
+  width:220px;
+  background:#0f172a;
+  color:white;
+  height:100vh;
+  padding:20px;
 }
-.menu button {
-  flex:1;
+
+.sidebar button {
+  width:100%;
+  margin-bottom:10px;
   padding:12px;
   border:none;
-  background:none;
-  font-weight:bold;
-}
-.menu .active {
-  background:#065f46;
-  color:#fff;
+  border-radius:8px;
+  background:#1e293b;
+  color:white;
+  text-align:left;
 }
 
-.container { padding:15px; }
+.sidebar button.active {
+  background:#10b981;
+}
 
+/* MAIN */
+.main {
+  flex:1;
+  padding:20px;
+}
+
+/* CARDS */
+.dashboard {
+  display:flex;
+  gap:15px;
+}
+
+.card {
+  flex:1;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+}
+
+/* BOX */
 .box {
-  background:#fff;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:10px;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  margin-top:20px;
 }
 
+/* INPUT */
 input, select {
   width:100%;
   padding:12px;
-  margin-top:8px;
-  border-radius:8px;
-  border:1px solid #ccc;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
 }
 
-button {
+/* BUTTON */
+button.action {
+  background:#10b981;
+  color:white;
   margin-top:10px;
   padding:12px;
   border:none;
-  border-radius:8px;
-  background:#065f46;
-  color:white;
-  font-weight:bold;
+  border-radius:10px;
+  width:100%;
 }
 
-.btn-group {
-  display:flex;
-  gap:10px;
-}
-
+/* ITEM */
 .item {
   background:#fff;
-  padding:12px;
+  padding:15px;
   border-radius:12px;
   margin-top:10px;
 }
@@ -92,28 +99,29 @@ button {
 
 <body>
 
-<header>
-  <div class="subtitle">CONTROLE DE INVENTÁRIO</div>
-  <div class="title">Estoque<span style="color:#065f46;">App</span></div>
-</header>
-
-<div class="dashboard">
-  <div class="card"><h2 id="p">0</h2><small>Produtos</small></div>
-  <div class="card"><h2 id="u">0</h2><small>Unidades</small></div>
-  <div class="card"><h2 id="z">0</h2><small>Zerados</small></div>
-</div>
-
-<div class="menu">
+<div class="sidebar">
+  <h2>📦 Estoque</h2>
   <button onclick="trocar('estoque', this)" class="active">Estoque</button>
-  <button onclick="trocar('mov', this)">Movimentação</button>
+  <button onclick="trocar('mov', this)">Saída</button>
   <button onclick="trocar('hist', this)">Histórico</button>
 </div>
 
-<div class="container" id="conteudo"></div>
+<div class="main">
+
+  <div class="dashboard">
+    <div class="card"><h3 id="p">0</h3>Produtos</div>
+    <div class="card"><h3 id="u">0</h3>Unidades</div>
+    <div class="card"><h3 id="z">0</h3>Zerados</div>
+  </div>
+
+  <div id="conteudo"></div>
+
+</div>
 
 <script>
 let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
 let historico = JSON.parse(localStorage.getItem("historico")) || [];
+let itensSaida = [];
 
 /* SALVAR */
 function salvar(){
@@ -123,7 +131,7 @@ function salvar(){
 
 /* MENU */
 function trocar(tela, el){
-  document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active"));
   el.classList.add("active");
 
   if(tela=="estoque") telaEstoque();
@@ -136,156 +144,182 @@ function telaEstoque(){
   conteudo.innerHTML = `
     <div class="box">
       <h3>Adicionar Produto</h3>
-      <input id="nome" placeholder="Nome do produto">
+      <input id="nome" placeholder="Nome">
       <input id="qtd" type="number" placeholder="Quantidade">
-      <button onclick="addProduto()">Adicionar</button>
-      <button onclick="gerarPDF()">📄 Gerar PDF</button>
+      <button class="action" onclick="addProduto()">Adicionar</button>
     </div>
-
     <div id="lista"></div>
   `;
-
-  listarProdutos();
+  listar();
 }
 
 function addProduto(){
   let nome = document.getElementById("nome").value;
   let qtd = parseInt(document.getElementById("qtd").value);
 
-  if(!nome || !qtd) return alert("Preencha os dados");
+  if(!nome || !qtd) return alert("Preencha");
 
   produtos.push({nome,qtd});
   salvar();
   telaEstoque();
 }
 
-/* LISTAR */
-function listarProdutos(){
+function listar(){
   let lista = document.getElementById("lista");
   lista.innerHTML="";
 
-  produtos.forEach((p,i)=>{
+  produtos.forEach((p)=>{
     lista.innerHTML += `
       <div class="item">
         <b>${p.nome}</b><br>
-        Qtd: ${p.qtd}<br><br>
-
-        <div class="btn-group">
-          <button onclick="abrirMov(${i}, 'entrada')">Entrada</button>
-          <button onclick="abrirMov(${i}, 'saida')">Saída</button>
-        </div>
+        Qtd: ${p.qtd}
       </div>
     `;
   });
 
-  atualizarDash();
+  atualizar();
 }
 
-/* FORM MOVIMENTAÇÃO */
+/* SAÍDA COM LISTA */
 function telaMov(){
   conteudo.innerHTML = `
     <div class="box">
-      <h3>Movimentação</h3>
+      <h3>Nova Saída</h3>
 
-      <select id="produtoSel"></select>
-      <select id="tipo">
-        <option value="entrada">Entrada</option>
-        <option value="saida">Saída</option>
-      </select>
-
-      <input id="qtdMov" type="number" placeholder="Quantidade">
+      <input id="evento" placeholder="Evento / Local">
       <input id="resp" placeholder="Responsável">
 
-      <button onclick="registrarMov()">Registrar</button>
+      <select id="prodSel"></select>
+      <input id="qtdItem" type="number" placeholder="Quantidade">
+
+      <button class="action" onclick="addItem()">Adicionar Item</button>
+
+      <div id="listaItens"></div>
+
+      <button class="action" onclick="finalizarSaida()">Finalizar Saída</button>
     </div>
   `;
 
-  let sel = document.getElementById("produtoSel");
+  let sel = document.getElementById("prodSel");
   produtos.forEach((p,i)=>{
     sel.innerHTML += `<option value="${i}">${p.nome}</option>`;
   });
+
+  itensSaida = [];
 }
 
-function abrirMov(i, tipo){
-  trocar('mov', document.querySelectorAll(".menu button")[1]);
+function addItem(){
+  let i = prodSel.value;
+  let qtd = parseInt(qtdItem.value);
 
-  setTimeout(()=>{
-    document.getElementById("produtoSel").value = i;
-    document.getElementById("tipo").value = tipo;
-  },100);
+  if(!qtd) return alert("Informe quantidade");
+
+  if(produtos[i].qtd < qtd) return alert("Sem estoque");
+
+  itensSaida.push({index:i, nome:produtos[i].nome, qtd});
+
+  listaItens.innerHTML += `<div class="item">${produtos[i].nome} - ${qtd}</div>`;
 }
 
-function registrarMov(){
-  let i = document.getElementById("produtoSel").value;
-  let tipo = document.getElementById("tipo").value;
-  let qtd = parseInt(document.getElementById("qtdMov").value);
-  let resp = document.getElementById("resp").value;
+function finalizarSaida(){
+  let evento = evento.value;
+  let resp = resp.value;
 
-  if(!qtd || !resp) return alert("Preencha");
-
-  if(tipo=="saida" && produtos[i].qtd < qtd){
-    return alert("Estoque insuficiente");
+  if(!evento || !resp || itensSaida.length==0){
+    return alert("Preencha tudo");
   }
 
-  produtos[i].qtd += (tipo=="entrada" ? qtd : -qtd);
-
-  historico.push({
-    produto: produtos[i].nome,
-    tipo,
-    qtd,
-    responsavel: resp,
-    data: new Date().toLocaleString()
+  itensSaida.forEach(i=>{
+    produtos[i.index].qtd -= i.qtd;
   });
+
+  let registro = {
+    tipo:"SAIDA",
+    evento,
+    responsavel:resp,
+    itens:itensSaida,
+    data:new Date().toLocaleString()
+  };
+
+  historico.push(registro);
+
+  gerarPDFSaida(registro);
 
   salvar();
   telaEstoque();
 }
 
+/* PDF ORDEM SERVIÇO */
+function gerarPDFSaida(reg){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("ORDEM DE SAÍDA", 10, 10);
+
+  doc.setFontSize(10);
+  doc.text("Evento: " + reg.evento, 10, 20);
+  doc.text("Responsável: " + reg.responsavel, 10, 26);
+  doc.text("Data: " + reg.data, 10, 32);
+
+  let y = 40;
+
+  reg.itens.forEach(i=>{
+    doc.text(`${i.nome} - ${i.qtd}`, 10, y);
+    y += 8;
+  });
+
+  y += 20;
+  doc.text("Assinatura: ______________________", 10, y);
+
+  doc.save("saida.pdf");
+}
+
 /* HISTÓRICO */
 function telaHist(){
-  conteudo.innerHTML = "<div id='hist'></div>";
-  let div = document.getElementById("hist");
+  conteudo.innerHTML = `
+    <input id="busca" placeholder="Buscar evento..." onkeyup="filtrar()">
+    <div id="h"></div>
+  `;
 
-  historico.forEach(h=>{
-    div.innerHTML += `
+  renderHist(historico);
+}
+
+function renderHist(lista){
+  let h = document.getElementById("h");
+  h.innerHTML="";
+
+  lista.forEach(reg=>{
+    let itens = reg.itens.map(i=>`${i.nome} (${i.qtd})`).join(", ");
+
+    h.innerHTML += `
       <div class="item">
-        <b>${h.produto}</b><br>
-        ${h.tipo} - ${h.qtd}<br>
-        Resp: ${h.responsavel}<br>
-        ${h.data}
+        <b>${reg.evento}</b><br>
+        ${reg.responsavel}<br>
+        ${itens}<br>
+        ${reg.data}
       </div>
     `;
   });
 }
 
-/* DASH */
-function atualizarDash(){
-  let total=0, zerados=0;
-
-  produtos.forEach(p=>{
-    total+=p.qtd;
-    if(p.qtd<=0) zerados++;
-  });
-
-  p.innerText = produtos.length;
-  u.innerText = total;
-  z.innerText = zerados;
+function filtrar(){
+  let termo = busca.value.toLowerCase();
+  let filtrado = historico.filter(h=>h.evento.toLowerCase().includes(termo));
+  renderHist(filtrado);
 }
 
-/* PDF */
-function gerarPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.text("Relatório de Estoque", 10, 10);
-
-  let y = 20;
+/* DASH */
+function atualizar(){
+  let total=0, z=0;
   produtos.forEach(p=>{
-    doc.text(`${p.nome} - Qtd: ${p.qtd}`, 10, y);
-    y += 8;
+    total+=p.qtd;
+    if(p.qtd<=0) z++;
   });
 
-  doc.save("estoque.pdf");
+  p.innerText=produtos.length;
+  u.innerText=total;
+  this.z.innerText=z;
 }
 
 telaEstoque();
