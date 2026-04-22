@@ -14,14 +14,10 @@ body {
   background:#f3f4f6;
 }
 
-/* HEADER */
-header {
-  padding:20px;
-}
+header { padding:20px; }
 .title { font-size:26px; font-weight:bold; }
 .subtitle { font-size:12px; color:#777; }
 
-/* DASHBOARD */
 .dashboard {
   display:flex;
   gap:10px;
@@ -33,16 +29,13 @@ header {
   padding:15px;
   border-radius:12px;
   text-align:center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* MENU */
 .menu {
   display:flex;
   margin:15px;
   background:#e5e7eb;
   border-radius:12px;
-  overflow:hidden;
 }
 .menu button {
   flex:1;
@@ -50,14 +43,12 @@ header {
   border:none;
   background:none;
   font-weight:bold;
-  cursor:pointer;
 }
-.menu button.active {
+.menu .active {
   background:#065f46;
   color:#fff;
 }
 
-/* CONTAINER */
 .container { padding:15px; }
 
 .box {
@@ -65,10 +56,9 @@ header {
   padding:15px;
   border-radius:12px;
   margin-bottom:10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-input {
+input, select {
   width:100%;
   padding:12px;
   margin-top:8px;
@@ -76,13 +66,7 @@ input {
   border:1px solid #ccc;
 }
 
-/* BOTÕES */
-.btn-group {
-  display:flex;
-  gap:10px;
-}
 button {
-  flex:1;
   margin-top:10px;
   padding:12px;
   border:none;
@@ -90,7 +74,11 @@ button {
   background:#065f46;
   color:white;
   font-weight:bold;
-  cursor:pointer;
+}
+
+.btn-group {
+  display:flex;
+  gap:10px;
 }
 
 .item {
@@ -98,7 +86,6 @@ button {
   padding:12px;
   border-radius:12px;
   margin-top:10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 </style>
 </head>
@@ -118,6 +105,7 @@ button {
 
 <div class="menu">
   <button onclick="trocar('estoque', this)" class="active">Estoque</button>
+  <button onclick="trocar('mov', this)">Movimentação</button>
   <button onclick="trocar('hist', this)">Histórico</button>
 </div>
 
@@ -127,17 +115,19 @@ button {
 let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
 let historico = JSON.parse(localStorage.getItem("historico")) || [];
 
+/* SALVAR */
 function salvar(){
   localStorage.setItem("produtos", JSON.stringify(produtos));
   localStorage.setItem("historico", JSON.stringify(historico));
 }
 
-/* TROCAR TELA (CORRIGIDO) */
+/* MENU */
 function trocar(tela, el){
   document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
   el.classList.add("active");
 
   if(tela=="estoque") telaEstoque();
+  if(tela=="mov") telaMov();
   if(tela=="hist") telaHist();
 }
 
@@ -148,11 +138,8 @@ function telaEstoque(){
       <h3>Adicionar Produto</h3>
       <input id="nome" placeholder="Nome do produto">
       <input id="qtd" type="number" placeholder="Quantidade">
-
-      <div class="btn-group">
-        <button onclick="addProduto()">Adicionar</button>
-        <button onclick="gerarPDF()">PDF</button>
-      </div>
+      <button onclick="addProduto()">Adicionar</button>
+      <button onclick="gerarPDF()">📄 Gerar PDF</button>
     </div>
 
     <div id="lista"></div>
@@ -162,8 +149,8 @@ function telaEstoque(){
 }
 
 function addProduto(){
-  let nome = nomeInput.value;
-  let qtd = parseInt(qtdInput.value);
+  let nome = document.getElementById("nome").value;
+  let qtd = parseInt(document.getElementById("qtd").value);
 
   if(!nome || !qtd) return alert("Preencha os dados");
 
@@ -184,8 +171,8 @@ function listarProdutos(){
         Qtd: ${p.qtd}<br><br>
 
         <div class="btn-group">
-          <button onclick="mov(${i},1)">Entrada</button>
-          <button onclick="mov(${i},-1)">Saída</button>
+          <button onclick="abrirMov(${i}, 'entrada')">Entrada</button>
+          <button onclick="abrirMov(${i}, 'saida')">Saída</button>
         </div>
       </div>
     `;
@@ -194,29 +181,64 @@ function listarProdutos(){
   atualizarDash();
 }
 
-/* MOVIMENTAÇÃO */
-function mov(i,val){
-  let responsavel = prompt("Responsável:");
-  let qtd = parseInt(prompt("Quantidade:"));
+/* FORM MOVIMENTAÇÃO */
+function telaMov(){
+  conteudo.innerHTML = `
+    <div class="box">
+      <h3>Movimentação</h3>
 
-  if(!responsavel || !qtd) return;
+      <select id="produtoSel"></select>
+      <select id="tipo">
+        <option value="entrada">Entrada</option>
+        <option value="saida">Saída</option>
+      </select>
 
-  if(val < 0 && produtos[i].qtd < qtd){
+      <input id="qtdMov" type="number" placeholder="Quantidade">
+      <input id="resp" placeholder="Responsável">
+
+      <button onclick="registrarMov()">Registrar</button>
+    </div>
+  `;
+
+  let sel = document.getElementById("produtoSel");
+  produtos.forEach((p,i)=>{
+    sel.innerHTML += `<option value="${i}">${p.nome}</option>`;
+  });
+}
+
+function abrirMov(i, tipo){
+  trocar('mov', document.querySelectorAll(".menu button")[1]);
+
+  setTimeout(()=>{
+    document.getElementById("produtoSel").value = i;
+    document.getElementById("tipo").value = tipo;
+  },100);
+}
+
+function registrarMov(){
+  let i = document.getElementById("produtoSel").value;
+  let tipo = document.getElementById("tipo").value;
+  let qtd = parseInt(document.getElementById("qtdMov").value);
+  let resp = document.getElementById("resp").value;
+
+  if(!qtd || !resp) return alert("Preencha");
+
+  if(tipo=="saida" && produtos[i].qtd < qtd){
     return alert("Estoque insuficiente");
   }
 
-  produtos[i].qtd += (val > 0 ? qtd : -qtd);
+  produtos[i].qtd += (tipo=="entrada" ? qtd : -qtd);
 
   historico.push({
     produto: produtos[i].nome,
-    tipo: val > 0 ? "ENTRADA" : "SAÍDA",
+    tipo,
     qtd,
-    responsavel,
+    responsavel: resp,
     data: new Date().toLocaleString()
   });
 
   salvar();
-  listarProdutos();
+  telaEstoque();
 }
 
 /* HISTÓRICO */
@@ -236,7 +258,7 @@ function telaHist(){
   });
 }
 
-/* DASHBOARD */
+/* DASH */
 function atualizarDash(){
   let total=0, zerados=0;
 
