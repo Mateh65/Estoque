@@ -3,114 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estoque App</title>
+<title>Estoque PRO</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #f3f4f6;
-  color: #333;
-}
+body { margin:0; font-family: Arial; background:#f3f4f6; }
 
 /* HEADER */
-header {
-  padding: 20px;
-}
-
-.title {
-  font-size: 26px;
-  font-weight: bold;
-}
-
-.subtitle {
-  font-size: 12px;
-  color: #6b7280;
-  letter-spacing: 2px;
-}
+header { padding:20px; }
+.title { font-size:26px; font-weight:bold; }
+.subtitle { font-size:12px; color:#777; }
 
 /* DASHBOARD */
 .dashboard {
-  display: flex;
-  gap: 10px;
-  padding: 0 15px;
+  display:flex;
+  gap:10px;
+  padding:0 15px;
 }
-
-.card-top {
-  flex: 1;
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  text-align: center;
+.card {
+  flex:1;
+  background:#fff;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
 }
-
-.card-top h2 {
-  margin: 0;
-}
-
-.red { color: red; }
 
 /* MENU */
 .menu {
-  display: flex;
-  margin: 15px;
-  background: #e5e7eb;
-  border-radius: 10px;
-  overflow: hidden;
+  display:flex;
+  margin:15px;
+  background:#ddd;
+  border-radius:10px;
 }
-
 .menu button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  background: none;
-  font-weight: bold;
+  flex:1;
+  padding:10px;
+  border:none;
+  background:none;
+}
+.active {
+  background:#065f46;
+  color:#fff;
+  border-radius:10px;
 }
 
-.menu .active {
-  background: #065f46;
-  color: white;
-}
-
-/* FORM */
-.container {
-  padding: 15px;
-}
-
+/* CONTEÚDO */
+.container { padding:15px; }
 .box {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
+  background:#fff;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:10px;
 }
 
-input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+input, select {
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
 
-button.add {
-  margin-top: 10px;
-  background: #065f46;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  width: 100%;
+button {
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#065f46;
+  color:white;
 }
 
-/* LISTA */
 .item {
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-.low {
-  border-left: 5px solid red;
+  background:#fff;
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -123,87 +89,148 @@ button.add {
 </header>
 
 <div class="dashboard">
-  <div class="card-top">
-    <h2 id="produtos">0</h2>
-    <small>PRODUTOS</small>
-  </div>
-  <div class="card-top">
-    <h2 id="unidades">0</h2>
-    <small>UNIDADES</small>
-  </div>
-  <div class="card-top">
-    <h2 id="zerados" class="red">0</h2>
-    <small>ZERADOS</small>
-  </div>
+  <div class="card"><h2 id="p">0</h2><small>Produtos</small></div>
+  <div class="card"><h2 id="u">0</h2><small>Unidades</small></div>
+  <div class="card"><h2 id="z">0</h2><small>Zerados</small></div>
 </div>
 
 <div class="menu">
-  <button class="active">Estoque</button>
-  <button>Movimentação</button>
-  <button>Categorias</button>
-  <button>Histórico</button>
+  <button onclick="trocar('estoque')" class="active">Estoque</button>
+  <button onclick="trocar('mov')">Movimentação</button>
+  <button onclick="trocar('cat')">Categorias</button>
+  <button onclick="trocar('hist')">Histórico</button>
 </div>
 
-<div class="container">
-  <div class="box">
-
-    <h4>ADICIONAR PRODUTO</h4>
-
-    <input id="nome" placeholder="Nome do produto">
-    <input id="qtd" type="number" placeholder="Quantidade">
-
-    <button class="add" onclick="add()">+ Adicionar</button>
-
-  </div>
-
-  <div id="lista"></div>
-</div>
+<div class="container" id="conteudo"></div>
 
 <script>
-let produtos = JSON.parse(localStorage.getItem("estoque")) || [];
+let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+let categorias = JSON.parse(localStorage.getItem("categorias")) || [];
+let historico = JSON.parse(localStorage.getItem("historico")) || [];
 
-function salvar() {
-  localStorage.setItem("estoque", JSON.stringify(produtos));
+function salvar(){
+  localStorage.setItem("produtos", JSON.stringify(produtos));
+  localStorage.setItem("categorias", JSON.stringify(categorias));
+  localStorage.setItem("historico", JSON.stringify(historico));
 }
 
-function add() {
+/* TROCAR TELA */
+function trocar(tela){
+  document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+
+  if(tela=="estoque") telaEstoque();
+  if(tela=="mov") telaMov();
+  if(tela=="cat") telaCat();
+  if(tela=="hist") telaHist();
+}
+
+/* ESTOQUE */
+function telaEstoque(){
+  conteudo.innerHTML = `
+    <div class="box">
+      <h3>Adicionar Produto</h3>
+      <input id="nome" placeholder="Nome">
+      <select id="categoria"></select>
+      <input id="qtd" type="number" placeholder="Quantidade">
+      <button onclick="addProduto()">Adicionar</button>
+    </div>
+    <div id="lista"></div>
+  `;
+
+  let sel = document.getElementById("categoria");
+  categorias.forEach(c => sel.innerHTML += `<option>${c}</option>`);
+
+  listarProdutos();
+}
+
+function addProduto(){
   let nome = nomeInput.value;
   let qtd = parseInt(qtdInput.value);
+  let cat = categoria.value;
 
-  if (!nome || !qtd) return alert("Preencha");
-
-  produtos.push({ nome, qtd });
+  produtos.push({nome,qtd,cat});
   salvar();
-  listar();
+  telaEstoque();
 }
 
-function listar() {
+function listarProdutos(){
   let lista = document.getElementById("lista");
-  lista.innerHTML = "";
+  lista.innerHTML="";
 
-  let total = 0;
-  let zerados = 0;
-
-  produtos.forEach((p, i) => {
-    total += p.qtd;
-    if (p.qtd == 0) zerados++;
-
+  produtos.forEach((p,i)=>{
     lista.innerHTML += `
-      <div class="item ${p.qtd <= 2 ? 'low' : ''}">
+      <div class="item">
         <b>${p.nome}</b><br>
-        Quantidade: ${p.qtd}<br><br>
-        <button onclick="produtos[${i}].qtd++; salvar(); listar()">+</button>
-        <button onclick="produtos[${i}].qtd--; salvar(); listar()">-</button>
+        Categoria: ${p.cat}<br>
+        Qtd: ${p.qtd}<br><br>
+        <button onclick="mov(${i},1)">Entrada</button>
+        <button onclick="mov(${i},-1)">Saída</button>
       </div>
     `;
   });
 
-  document.getElementById("produtos").innerText = produtos.length;
-  document.getElementById("unidades").innerText = total;
-  document.getElementById("zerados").innerText = zerados;
+  atualizarDash();
 }
 
-listar();
+/* MOVIMENTAÇÃO */
+function telaMov(){
+  conteudo.innerHTML = "<div class='box'>Use os botões no estoque</div>";
+}
+
+/* CATEGORIAS */
+function telaCat(){
+  conteudo.innerHTML = `
+    <div class="box">
+      <h3>Nova Categoria</h3>
+      <input id="novaCat">
+      <button onclick="addCat()">Adicionar</button>
+    </div>
+    <div id="cats"></div>
+  `;
+
+  let div = document.getElementById("cats");
+  categorias.forEach(c => div.innerHTML += `<div class="item">${c}</div>`);
+}
+
+function addCat(){
+  categorias.push(novaCat.value);
+  salvar();
+  telaCat();
+}
+
+/* HISTÓRICO */
+function telaHist(){
+  conteudo.innerHTML = "<div id='hist'></div>";
+  let div = document.getElementById("hist");
+
+  historico.forEach(h=>{
+    div.innerHTML += `<div class="item">${h}</div>`;
+  });
+}
+
+/* MOVIMENTAÇÃO */
+function mov(i,val){
+  produtos[i].qtd += val;
+  historico.push(produtos[i].nome + " " + (val>0?"ENTRADA":"SAÍDA"));
+  salvar();
+  listarProdutos();
+}
+
+/* DASHBOARD */
+function atualizarDash(){
+  let total=0, zerados=0;
+  produtos.forEach(p=>{
+    total+=p.qtd;
+    if(p.qtd<=0) zerados++;
+  });
+
+  p.innerText = produtos.length;
+  u.innerText = total;
+  z.innerText = zerados;
+}
+
+telaEstoque();
 </script>
 
 </body>
