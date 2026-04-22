@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estoque PRO</title>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 body { margin:0; font-family: Arial; background:#f3f4f6; }
 
-/* HEADER */
 header { padding:20px; }
 .title { font-size:26px; font-weight:bold; }
 .subtitle { font-size:12px; color:#777; }
 
-/* DASHBOARD */
 .dashboard {
   display:flex;
   gap:10px;
@@ -27,7 +27,6 @@ header { padding:20px; }
   text-align:center;
 }
 
-/* MENU */
 .menu {
   display:flex;
   margin:15px;
@@ -46,8 +45,8 @@ header { padding:20px; }
   border-radius:10px;
 }
 
-/* CONTEÚDO */
 .container { padding:15px; }
+
 .box {
   background:#fff;
   padding:15px;
@@ -96,8 +95,6 @@ button {
 
 <div class="menu">
   <button onclick="trocar('estoque')" class="active">Estoque</button>
-  <button onclick="trocar('mov')">Movimentação</button>
-  <button onclick="trocar('cat')">Categorias</button>
   <button onclick="trocar('hist')">Histórico</button>
 </div>
 
@@ -105,12 +102,10 @@ button {
 
 <script>
 let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
-let categorias = JSON.parse(localStorage.getItem("categorias")) || [];
 let historico = JSON.parse(localStorage.getItem("historico")) || [];
 
 function salvar(){
   localStorage.setItem("produtos", JSON.stringify(produtos));
-  localStorage.setItem("categorias", JSON.stringify(categorias));
   localStorage.setItem("historico", JSON.stringify(historico));
 }
 
@@ -120,8 +115,6 @@ function trocar(tela){
   event.target.classList.add("active");
 
   if(tela=="estoque") telaEstoque();
-  if(tela=="mov") telaMov();
-  if(tela=="cat") telaCat();
   if(tela=="hist") telaHist();
 }
 
@@ -131,25 +124,22 @@ function telaEstoque(){
     <div class="box">
       <h3>Adicionar Produto</h3>
       <input id="nome" placeholder="Nome">
-      <select id="categoria"></select>
       <input id="qtd" type="number" placeholder="Quantidade">
       <button onclick="addProduto()">Adicionar</button>
+      <button onclick="gerarPDF()">📄 Gerar Relatório PDF</button>
     </div>
     <div id="lista"></div>
   `;
-
-  let sel = document.getElementById("categoria");
-  categorias.forEach(c => sel.innerHTML += `<option>${c}</option>`);
-
   listarProdutos();
 }
 
 function addProduto(){
   let nome = nomeInput.value;
   let qtd = parseInt(qtdInput.value);
-  let cat = categoria.value;
 
-  produtos.push({nome,qtd,cat});
+  if(!nome || !qtd) return alert("Preencha os dados");
+
+  produtos.push({nome,qtd});
   salvar();
   telaEstoque();
 }
@@ -162,7 +152,6 @@ function listarProdutos(){
     lista.innerHTML += `
       <div class="item">
         <b>${p.nome}</b><br>
-        Categoria: ${p.cat}<br>
         Qtd: ${p.qtd}<br><br>
         <button onclick="mov(${i},1)">Entrada</button>
         <button onclick="mov(${i},-1)">Saída</button>
@@ -173,30 +162,29 @@ function listarProdutos(){
   atualizarDash();
 }
 
-/* MOVIMENTAÇÃO */
-function telaMov(){
-  conteudo.innerHTML = "<div class='box'>Use os botões no estoque</div>";
-}
+/* MOVIMENTAÇÃO COM RESPONSÁVEL */
+function mov(i,val){
+  let responsavel = prompt("Nome do responsável:");
+  let qtd = parseInt(prompt("Quantidade:"));
 
-/* CATEGORIAS */
-function telaCat(){
-  conteudo.innerHTML = `
-    <div class="box">
-      <h3>Nova Categoria</h3>
-      <input id="novaCat">
-      <button onclick="addCat()">Adicionar</button>
-    </div>
-    <div id="cats"></div>
-  `;
+  if(!responsavel || !qtd) return;
 
-  let div = document.getElementById("cats");
-  categorias.forEach(c => div.innerHTML += `<div class="item">${c}</div>`);
-}
+  if(val < 0 && produtos[i].qtd < qtd){
+    return alert("Estoque insuficiente");
+  }
 
-function addCat(){
-  categorias.push(novaCat.value);
+  produtos[i].qtd += (val > 0 ? qtd : -qtd);
+
+  historico.push({
+    produto: produtos[i].nome,
+    tipo: val > 0 ? "ENTRADA" : "SAÍDA",
+    qtd: qtd,
+    responsavel: responsavel,
+    data: new Date().toLocaleString()
+  });
+
   salvar();
-  telaCat();
+  listarProdutos();
 }
 
 /* HISTÓRICO */
@@ -205,21 +193,22 @@ function telaHist(){
   let div = document.getElementById("hist");
 
   historico.forEach(h=>{
-    div.innerHTML += `<div class="item">${h}</div>`;
+    div.innerHTML += `
+      <div class="item">
+        <b>${h.produto}</b><br>
+        Tipo: ${h.tipo}<br>
+        Qtd: ${h.qtd}<br>
+        Resp: ${h.responsavel}<br>
+        Data: ${h.data}
+      </div>
+    `;
   });
-}
-
-/* MOVIMENTAÇÃO */
-function mov(i,val){
-  produtos[i].qtd += val;
-  historico.push(produtos[i].nome + " " + (val>0?"ENTRADA":"SAÍDA"));
-  salvar();
-  listarProdutos();
 }
 
 /* DASHBOARD */
 function atualizarDash(){
   let total=0, zerados=0;
+
   produtos.forEach(p=>{
     total+=p.qtd;
     if(p.qtd<=0) zerados++;
@@ -228,6 +217,29 @@ function atualizarDash(){
   p.innerText = produtos.length;
   u.innerText = total;
   z.innerText = zerados;
+}
+
+/* PDF PROFISSIONAL */
+function gerarPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("RELATÓRIO DE ESTOQUE", 10, 15);
+
+  doc.setFontSize(10);
+  doc.text("Gerado em: " + new Date().toLocaleString(), 10, 22);
+
+  let y = 30;
+
+  produtos.forEach(p => {
+    doc.setFontSize(12);
+    doc.text("Produto: " + p.nome, 10, y);
+    doc.text("Quantidade: " + p.qtd, 10, y+6);
+    y += 15;
+  });
+
+  doc.save("estoque.pdf");
 }
 
 telaEstoque();
