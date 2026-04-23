@@ -1,201 +1,197 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EstoqueApp</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Familjen+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   STOQ — Sistema de Controle de Almoxarifado
-   Tema: Navy Professional / Amber Accent
-═══════════════════════════════════════════ */
 :root {
-  --bg:         #0d1117;
-  --bg2:        #0a0e13;
-  --surface:    #161b22;
-  --surface2:   #1c2330;
-  --surface3:   #21262d;
-  --border:     #30363d;
-  --border2:    #3d444d;
-  --accent:     #f0a500;
-  --accent-lt:  rgba(240,165,0,.12);
-  --accent-dk:  #c88400;
-  --accent2:    #3b82f6;
-  --accent2-lt: rgba(59,130,246,.12);
-  --success:    #3fb950;
-  --success-lt: rgba(63,185,80,.12);
-  --danger:     #f85149;
-  --danger-lt:  rgba(248,81,73,.12);
-  --warning:    #d29922;
-  --warning-lt: rgba(210,153,34,.12);
-  --info:       #58a6ff;
-  --text:       #e6edf3;
-  --text-2:     #8b949e;
-  --text-3:     #484f58;
-  --shadow-sm:  0 1px 3px rgba(0,0,0,.4);
-  --shadow-md:  0 4px 16px rgba(0,0,0,.5);
-  --shadow-lg:  0 12px 40px rgba(0,0,0,.6);
-  --radius:     10px;
-  --radius-sm:  7px;
-  --font-disp:  'Syne', system-ui, sans-serif;
-  --font-body:  'Outfit', system-ui, sans-serif;
+  /* Palette — slate-white with teal-blue accent */
+  --bg:         #f0f4f8;
+  --surface:    #ffffff;
+  --surface2:   #f7f9fb;
+  --surface3:   #eef2f7;
+  --border:     #dce3eb;
+  --border2:    #c4cdd9;
+
+–accent:     #0e6ba8;
+–accent-lt:  #e3f0fb;
+–accent-dk:  #0a5285;
+–accent2:    #0d9488;
+–accent2-lt: #d4f4f0;
+
+–success:    #059669;
+–success-lt: #d1fae5;
+–danger:     #dc2626;
+–danger-lt:  #fee2e2;
+–warning:    #d97706;
+–warning-lt: #fef3c7;
+–info:       #0e6ba8;
+–info-lt:    #e3f0fb;
+
+–text:       #0f1c2e;
+–text-2:     #4a5e75;
+–text-3:     #8fa1b3;
+
+–shadow-sm:  0 1px 3px rgba(14,50,80,.07), 0 1px 2px rgba(14,50,80,.04);
+–shadow-md:  0 4px 16px rgba(14,50,80,.10), 0 2px 4px rgba(14,50,80,.05);
+–shadow-lg:  0 12px 40px rgba(14,50,80,.14), 0 4px 8px rgba(14,50,80,.06);
+
+–radius:     10px;
+–radius-sm:  7px;
+–font-disp:  ‘Familjen Grotesk’, system-ui, sans-serif;
+–font-body:  ‘Plus Jakarta Sans’, system-ui, sans-serif;
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.5;
+background: var(–bg);
+color: var(–text);
+font-family: var(–font-body);
+min-height: 100vh;
+font-size: 15px;
+line-height: 1.5;
 }
 
-/* Grid pattern background */
+/* Subtle grid texture */
 body::before {
-  content: '';
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background-image:
-    linear-gradient(rgba(240,165,0,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(240,165,0,.03) 1px, transparent 1px);
-  background-size: 32px 32px;
+content: ‘’;
+position: fixed; inset: 0; pointer-events: none; z-index: 0;
+background-image:
+linear-gradient(rgba(14,107,168,.025) 1px, transparent 1px),
+linear-gradient(90deg, rgba(14,107,168,.025) 1px, transparent 1px);
+background-size: 40px 40px;
 }
 
-/* Gradient glow top */
+/* Top accent bar */
 body::after {
-  content: '';
-  position: fixed; top: 0; left: 0; right: 0; height: 280px;
-  background: radial-gradient(ellipse 80% 60% at 20% -10%, rgba(240,165,0,.08) 0%, transparent 70%),
-              radial-gradient(ellipse 60% 40% at 80% -5%,  rgba(59,130,246,.06) 0%, transparent 70%);
-  pointer-events: none; z-index: 0;
+content: ‘’;
+position: fixed; top: 0; left: 0; right: 0; height: 3px;
+background: linear-gradient(90deg, var(–accent), var(–accent2));
+z-index: 999;
 }
 
 .container {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
-  position: relative;
-  z-index: 1;
+max-width: 980px;
+margin: 0 auto;
+padding: 2.2rem 1.5rem 4rem;
+position: relative;
+z-index: 1;
 }
 
 /* ── Header ── */
 header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.75rem;
-  border-bottom: 1px solid var(--border);
-  animation: slideDown .5s cubic-bezier(.22,.68,0,1.15) both;
-  position: relative;
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+margin-bottom: 2rem;
+padding-bottom: 1.5rem;
+border-bottom: 1.5px solid var(–border);
+animation: slideDown .5s cubic-bezier(.22,.68,0,1.15) both;
 }
 
-header::after {
-  content: '';
-  position: absolute; bottom: -1px; left: 0; width: 80px; height: 2px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-}
-
-.header-brand { display: flex; flex-direction: column; gap: .25rem; }
+.header-brand { display: flex; flex-direction: column; gap: .2rem; }
 
 .brand-eyebrow {
-  font-family: var(--font-body);
-  font-size: .65rem;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 500;
+font-size: .65rem;
+letter-spacing: .2em;
+text-transform: uppercase;
+color: var(–accent);
+font-weight: 600;
 }
 
 .brand-title {
-  font-family: var(--font-disp);
-  font-size: 2.2rem;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--text);
-  letter-spacing: -.03em;
+font-family: var(–font-disp);
+font-size: 2.1rem;
+font-weight: 700;
+line-height: 1;
+color: var(–text);
+letter-spacing: -.02em;
 }
 
 .brand-title em {
-  font-style: normal;
-  color: var(--accent);
+font-style: normal;
+color: var(–accent);
 }
 
 /* stat cards */
 .stats-row { display: flex; gap: .6rem; }
 
 .stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: .7rem 1rem;
-  text-align: right;
-  min-width: 76px;
-  transition: border-color .2s, transform .2s;
-  position: relative;
-  overflow: hidden;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius-sm);
+padding: .7rem 1rem;
+text-align: right;
+min-width: 76px;
+box-shadow: var(–shadow-sm);
+transition: box-shadow .18s, transform .18s, border-color .18s;
+position: relative;
+overflow: hidden;
 }
 
-.stat-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--accent);
-  opacity: .5;
-  transition: opacity .2s;
+.stat-card::after {
+content: ‘’;
+position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+background: linear-gradient(90deg, var(–accent), var(–accent2));
+opacity: 0;
+transition: opacity .18s;
 }
 
-.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-.stat-card:hover::before { opacity: 1; }
+.stat-card:hover { box-shadow: var(–shadow-md); transform: translateY(-2px); border-color: var(–accent); }
+.stat-card:hover::after { opacity: 1; }
 
 .stat-num {
-  font-family: var(--font-disp);
-  font-size: 1.7rem;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--text);
+font-family: var(–font-disp);
+font-size: 1.7rem;
+font-weight: 700;
+line-height: 1;
+color: var(–text);
 }
 
 .stat-lbl {
-  font-size: .58rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  margin-top: .2rem;
+font-size: .58rem;
+letter-spacing: .12em;
+text-transform: uppercase;
+color: var(–text-3);
+margin-top: .2rem;
 }
 
 /* ── Tabs ── */
 .tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 1.75rem;
-  border-bottom: 1px solid var(--border);
-  animation: fadeUp .4s .08s ease both;
+display: flex;
+gap: 0;
+margin-bottom: 1.5rem;
+border-bottom: 1.5px solid var(–border);
+animation: fadeUp .4s .08s ease both;
+background: transparent;
 }
 
 .tab {
-  font-family: var(--font-body);
-  font-size: .78rem;
-  font-weight: 500;
-  padding: .65rem 1.2rem;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  cursor: pointer;
-  color: var(--text-2);
-  background: transparent;
-  transition: all .18s;
-  letter-spacing: .01em;
-  white-space: nowrap;
+font-family: var(–font-body);
+font-size: .78rem;
+font-weight: 500;
+padding: .65rem 1.2rem;
+border: none;
+border-bottom: 2px solid transparent;
+margin-bottom: -1.5px;
+cursor: pointer;
+color: var(–text-2);
+background: transparent;
+transition: all .18s;
+white-space: nowrap;
 }
 
-.tab:hover { color: var(--text); }
+.tab:hover { color: var(–accent); }
 
 .tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-  font-weight: 600;
+color: var(–accent);
+border-bottom-color: var(–accent);
+font-weight: 600;
+background: transparent;
 }
 
 /* ── Panels ── */
@@ -204,29 +200,30 @@ header::after {
 
 /* ── Cards ── */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin-bottom: 1.1rem;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius);
+box-shadow: var(–shadow-sm);
+overflow: hidden;
+margin-bottom: 1.1rem;
 }
 
 .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: .85rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: .85rem 1.25rem;
+border-bottom: 1.5px solid var(–border);
+background: var(–surface2);
 }
 
 .card-title {
-  font-family: var(--font-disp);
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--text-2);
+font-family: var(–font-disp);
+font-size: .68rem;
+font-weight: 700;
+letter-spacing: .14em;
+text-transform: uppercase;
+color: var(–text-2);
 }
 
 .card-body { padding: 1.1rem 1.25rem; }
@@ -237,61 +234,62 @@ header::after {
 .field { display: flex; flex-direction: column; gap: .35rem; }
 
 label {
-  font-size: .68rem;
-  font-weight: 500;
-  letter-spacing: .06em;
-  color: var(--text-2);
-  text-transform: uppercase;
+font-size: .68rem;
+font-weight: 600;
+letter-spacing: .06em;
+text-transform: uppercase;
+color: var(–text-2);
 }
 
-input[type="text"],
-input[type="number"],
+input[type=“text”],
+input[type=“number”],
 select {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: .9rem;
-  padding: .6rem .85rem;
-  outline: none;
-  transition: border-color .18s, box-shadow .18s;
-  width: 100%;
-  -moz-appearance: textfield;
+background: var(–surface2);
+border: 1.5px solid var(–border);
+border-radius: var(–radius-sm);
+color: var(–text);
+font-family: var(–font-body);
+font-size: .9rem;
+padding: .6rem .85rem;
+outline: none;
+transition: border-color .18s, box-shadow .18s, background .18s;
+width: 100%;
+-moz-appearance: textfield;
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type=“number”]::-webkit-inner-spin-button,
+input[type=“number”]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 input:focus, select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-lt);
+border-color: var(–accent);
+box-shadow: 0 0 0 3px var(–accent-lt);
+background: var(–surface);
 }
 
 select { cursor: pointer; }
-select option { background: var(--surface2); }
 
 .btn-primary {
-  background: var(--accent);
-  color: #0d0d0d;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-disp);
-  font-weight: 700;
-  font-size: .78rem;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  padding: .65rem 1.3rem;
-  cursor: pointer;
-  transition: all .18s;
-  white-space: nowrap;
-  height: fit-content;
+background: var(–accent);
+color: #fff;
+border: none;
+border-radius: var(–radius-sm);
+font-family: var(–font-disp);
+font-weight: 700;
+font-size: .78rem;
+letter-spacing: .04em;
+text-transform: uppercase;
+padding: .65rem 1.3rem;
+cursor: pointer;
+transition: all .18s;
+white-space: nowrap;
+height: fit-content;
+box-shadow: 0 2px 8px rgba(14,107,168,.3);
 }
 
 .btn-primary:hover {
-  background: var(--accent-dk);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(240,165,0,.35);
+background: var(–accent-dk);
+transform: translateY(-1px);
+box-shadow: 0 4px 14px rgba(14,107,168,.4);
 }
 
 .btn-primary:active { transform: translateY(0); box-shadow: none; }
@@ -302,315 +300,315 @@ select option { background: var(--surface2); }
 .search-box { position: relative; flex: 1; min-width: 160px; }
 
 .search-icon {
-  position: absolute; left: .85rem; top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-3); font-size: .9rem; pointer-events: none;
+position: absolute; left: .85rem; top: 50%;
+transform: translateY(-50%);
+color: var(–text-3); font-size: .9rem; pointer-events: none;
 }
 
 .search-box input { padding-left: 2.4rem; }
 
 .btn-ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  font-family: var(--font-body);
-  font-size: .75rem;
-  font-weight: 500;
-  padding: .58rem .95rem;
-  cursor: pointer;
-  transition: all .18s;
-  white-space: nowrap;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius-sm);
+color: var(–text-2);
+font-family: var(–font-body);
+font-size: .75rem;
+font-weight: 500;
+padding: .58rem .95rem;
+cursor: pointer;
+transition: all .18s;
+white-space: nowrap;
+box-shadow: var(–shadow-sm);
 }
 
-.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
-.btn-ghost.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-lt); }
+.btn-ghost:hover { border-color: var(–accent); color: var(–accent); background: var(–accent-lt); box-shadow: none; }
+.btn-ghost.danger:hover { border-color: var(–danger); color: var(–danger); background: var(–danger-lt); }
 
 /* ── Chips ── */
 .chips { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
 
 .chip {
-  font-size: .68rem;
-  font-weight: 500;
-  padding: .28rem .75rem;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  color: var(--text-2);
-  background: transparent;
-  transition: all .15s;
-  letter-spacing: .02em;
+font-size: .68rem;
+font-weight: 500;
+padding: .3rem .8rem;
+border-radius: 99px;
+border: 1.5px solid var(–border);
+cursor: pointer;
+color: var(–text-2);
+background: var(–surface);
+transition: all .15s;
+box-shadow: var(–shadow-sm);
 }
 
-.chip:hover { border-color: var(--border2); color: var(--text); }
-.chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); font-weight: 600; }
+.chip:hover { border-color: var(–border2); color: var(–text); }
+.chip.active { border-color: var(–accent); color: var(–accent); background: var(–accent-lt); font-weight: 600; box-shadow: none; }
 
 /* ── Table ── */
 .tbl-head {
-  display: grid;
-  grid-template-columns: 1fr 140px 100px 140px 52px;
-  padding: .5rem 1.25rem;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
+display: grid;
+grid-template-columns: 1fr 140px 100px 140px 52px;
+padding: .5rem 1.25rem;
+background: var(–surface2);
+border-bottom: 1.5px solid var(–border);
 }
 
 .th {
-  font-family: var(--font-disp);
-  font-size: .6rem;
-  font-weight: 700;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--text-3);
+font-family: var(–font-disp);
+font-size: .6rem;
+font-weight: 700;
+letter-spacing: .12em;
+text-transform: uppercase;
+color: var(–text-3);
 }
 
 .th:not(:first-child) { text-align: center; }
 
 .product-list { min-height: 120px; }
 
-.empty-state { border: 1px dashed var(--border); padding: 3rem; text-align: center; display: none; }
+.empty-state { padding: 3rem; text-align: center; display: none; border-top: 1.5px dashed var(–border); }
 .empty-state.visible { display: block; }
-.empty-icon { font-size: 2.2rem; margin-bottom: .65rem; opacity: .25; }
-.empty-text { font-size: .78rem; color: var(--text-3); letter-spacing: .04em; line-height: 1.6; }
+.empty-icon { font-size: 2.5rem; margin-bottom: .7rem; opacity: .3; }
+.empty-text { font-size: .8rem; color: var(–text-3); line-height: 1.6; }
 
 .product-row {
-  display: grid;
-  grid-template-columns: 1fr 140px 100px 140px 52px;
-  padding: .8rem 1.25rem;
-  border-top: 1px solid var(--border);
-  align-items: center;
-  transition: background .12s;
-  animation: rowIn .25s ease both;
+display: grid;
+grid-template-columns: 1fr 140px 100px 140px 52px;
+padding: .8rem 1.25rem;
+border-top: 1.5px solid var(–border);
+align-items: center;
+transition: background .12s;
+animation: rowIn .25s ease both;
 }
 
-.product-row:hover { background: var(--surface2); }
+.product-row:hover { background: var(–surface2); }
 
-.product-name { font-weight: 500; font-size: .9rem; }
+.product-name { font-weight: 600; font-size: .9rem; }
 
 .cat-cell { display: flex; justify-content: center; }
 
 .badge {
-  font-size: .6rem;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: .22rem .65rem;
-  border-radius: 4px;
+font-size: .6rem;
+font-weight: 700;
+letter-spacing: .07em;
+text-transform: uppercase;
+padding: .22rem .65rem;
+border-radius: 99px;
 }
 
 .product-qty-cell { text-align: center; }
 
 .qty-num {
-  font-family: var(--font-disp);
-  font-size: 1.1rem;
-  font-weight: 700;
+font-family: var(–font-disp);
+font-size: 1.1rem;
+font-weight: 700;
 }
 
-.qty-zero { color: var(--danger); }
-.qty-low  { color: var(--warning); }
-.qty-ok   { color: var(--success); }
+.qty-zero { color: var(–danger); }
+.qty-low  { color: var(–warning); }
+.qty-ok   { color: var(–success); }
 
 .qty-controls { display: flex; align-items: center; justify-content: center; gap: .45rem; }
 
 .qty-btn {
-  width: 26px; height: 26px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  color: var(--text-2);
-  font-size: .95rem;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
-  padding: 0; line-height: 1;
+width: 26px; height: 26px;
+border-radius: 99px;
+border: 1.5px solid var(–border);
+background: var(–surface);
+color: var(–text-2);
+font-size: .95rem;
+cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+transition: all .15s;
+padding: 0; line-height: 1;
+box-shadow: var(–shadow-sm);
 }
 
-.qty-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
-.qty-btn.minus:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-lt); }
+.qty-btn:hover { border-color: var(–accent); color: var(–accent); background: var(–accent-lt); }
+.qty-btn.minus:hover { border-color: var(–danger); color: var(–danger); background: var(–danger-lt); }
 
 .qty-val {
-  font-family: var(--font-disp);
-  font-weight: 700;
-  font-size: .9rem;
-  min-width: 2rem;
-  text-align: center;
+font-family: var(–font-disp);
+font-weight: 700;
+font-size: .9rem;
+min-width: 2rem;
+text-align: center;
 }
 
 .btn-icon {
-  background: transparent; border: none; cursor: pointer;
-  color: var(--text-3);
-  width: 28px; height: 28px; border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .15s; font-size: .85rem;
+background: transparent; border: none; cursor: pointer;
+color: var(–text-3);
+width: 28px; height: 28px; border-radius: 6px;
+display: flex; align-items: center; justify-content: center;
+transition: all .15s; font-size: .85rem;
 }
 
-.btn-icon:hover { background: var(--danger-lt); color: var(--danger); }
-
-.btn-edit { background: transparent; border: none; cursor: pointer; color: var(--text-3); width: 28px; height: 28px; border-radius: 5px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
-.btn-edit:hover { background: var(--accent-lt); color: var(--accent); }
+.btn-icon:hover { background: var(–danger-lt); color: var(–danger); }
+.btn-edit { background: transparent; border: none; cursor: pointer; color: var(–text-3); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.btn-edit:hover { background: var(–accent-lt); color: var(–accent); }
 
 /* ── Categorias ── */
 .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: .85rem; margin-top: .85rem; }
 
 .cat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem 1.1rem;
-  position: relative;
-  overflow: hidden;
-  transition: border-color .2s, transform .2s;
-  animation: rowIn .25s ease both;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius);
+padding: 1rem 1.1rem;
+position: relative;
+overflow: hidden;
+box-shadow: var(–shadow-sm);
+transition: box-shadow .18s, transform .18s, border-color .18s;
+animation: rowIn .25s ease both;
 }
 
-.cat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-.cat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.cat-card:hover { box-shadow: var(–shadow-md); transform: translateY(-2px); border-color: var(–border2); }
+.cat-card::before { content:’’; position:absolute; top:0; left:0; right:0; height:3px; }
 
-.cat-name { font-family: var(--font-disp); font-weight: 700; font-size: .88rem; margin-bottom: .2rem; margin-top: .4rem; }
-.cat-count { font-size: .7rem; color: var(--text-3); }
+.cat-name { font-family: var(–font-disp); font-weight: 700; font-size: .88rem; margin-bottom: .2rem; margin-top: .4rem; }
+.cat-count { font-size: .7rem; color: var(–text-3); }
 .cat-del { position: absolute; top: .5rem; right: .5rem; }
 
 /* ── Histórico ── */
 .hist-head {
-  display: grid;
-  grid-template-columns: 130px 1fr 110px 100px 80px;
-  padding: .5rem 1.25rem;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
+display: grid;
+grid-template-columns: 130px 1fr 110px 100px 80px;
+padding: .5rem 1.25rem;
+background: var(–surface2);
+border-bottom: 1.5px solid var(–border);
 }
 
 .hist-list { display: flex; flex-direction: column; }
 
 .hist-row {
-  display: grid;
-  grid-template-columns: 130px 1fr 110px 100px 80px;
-  padding: .75rem 1.25rem;
-  border-top: 1px solid var(--border);
-  align-items: center;
-  transition: background .12s;
+display: grid;
+grid-template-columns: 130px 1fr 110px 100px 80px;
+padding: .75rem 1.25rem;
+border-top: 1.5px solid var(–border);
+align-items: center;
+transition: background .12s;
 }
 
 .hist-row:first-child { border-top: none; }
-.hist-row:hover { background: var(--surface2); }
+.hist-row:hover { background: var(–surface2); }
 
-.hist-time { font-family: var(--font-body); font-size: .68rem; color: var(--text-3); line-height: 1.55; }
-.hist-prod { font-weight: 500; font-size: .86rem; }
+.hist-time { font-size: .68rem; color: var(–text-3); line-height: 1.55; }
+.hist-prod { font-weight: 600; font-size: .86rem; }
 .hist-tipo { text-align: center; }
 
 .tipo-pill {
-  display: inline-block;
-  font-family: var(--font-disp);
-  font-size: .58rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  padding: .2rem .6rem;
-  border-radius: 4px;
+display: inline-block;
+font-family: var(–font-disp);
+font-size: .58rem;
+font-weight: 700;
+letter-spacing: .1em;
+text-transform: uppercase;
+padding: .22rem .65rem;
+border-radius: 99px;
 }
 
-.hist-delta { font-family: var(--font-disp); font-weight: 700; font-size: .95rem; text-align: center; }
-.d-pos { color: var(--success); }
-.d-neg { color: var(--danger); }
-.d-new { color: var(--info); }
-.hist-empty { padding: 2.5rem; text-align: center; font-size: .8rem; color: var(--text-3); }
+.hist-delta { font-family: var(–font-disp); font-weight: 700; font-size: .95rem; text-align: center; }
+.d-pos { color: var(–success); }
+.d-neg { color: var(–danger); }
+.d-new { color: var(–info); }
+.hist-empty { padding: 2.5rem; text-align: center; font-size: .8rem; color: var(–text-3); }
 
-/* ── Modal ── */
+/* ── Edit modal ── */
 .modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.7);
-  backdrop-filter: blur(6px);
-  z-index: 500;
-  display: flex; align-items: center; justify-content: center;
-  padding: 1.5rem;
-  opacity: 0; pointer-events: none;
-  transition: opacity .22s ease;
+position: fixed; inset: 0;
+background: rgba(15,28,46,.55);
+backdrop-filter: blur(5px);
+z-index: 500;
+display: flex; align-items: center; justify-content: center;
+padding: 1.5rem;
+opacity: 0; pointer-events: none;
+transition: opacity .22s ease;
 }
 
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 
 .modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  width: 100%; max-width: 460px;
-  transform: translateY(18px) scale(.97);
-  transition: transform .28s cubic-bezier(.34,1.4,.64,1);
-  overflow: hidden;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius);
+box-shadow: var(–shadow-lg);
+width: 100%; max-width: 460px;
+transform: translateY(18px) scale(.97);
+transition: transform .28s cubic-bezier(.34,1.4,.64,1);
+overflow: hidden;
 }
 
 .modal-overlay.open .modal { transform: translateY(0) scale(1); }
 
 .modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
+display: flex; align-items: center; justify-content: space-between;
+padding: 1rem 1.25rem;
+border-bottom: 1.5px solid var(–border);
+background: var(–surface2);
 }
 
 .modal-title {
-  font-family: var(--font-disp);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
+font-family: var(–font-disp);
+font-size: 1rem;
+font-weight: 700;
+color: var(–text);
 }
 
 .modal-close {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-3); font-size: 1rem;
-  width: 28px; height: 28px; border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
+background: none; border: none; cursor: pointer;
+color: var(–text-3); font-size: 1rem;
+width: 28px; height: 28px; border-radius: 6px;
+display: flex; align-items: center; justify-content: center;
+transition: all .15s;
 }
 
-.modal-close:hover { background: var(--danger-lt); color: var(--danger); }
+.modal-close:hover { background: var(–danger-lt); color: var(–danger); }
 .modal-body { padding: 1.25rem; display: flex; flex-direction: column; gap: .9rem; }
 
 .modal-footer {
-  display: flex; gap: .65rem; justify-content: flex-end;
-  padding: .9rem 1.25rem;
-  border-top: 1px solid var(--border);
-  background: var(--surface2);
+display: flex; gap: .65rem; justify-content: flex-end;
+padding: .9rem 1.25rem;
+border-top: 1.5px solid var(–border);
+background: var(–surface2);
 }
 
 .btn-secondary {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  font-family: var(--font-body);
-  font-size: .8rem; font-weight: 500;
-  padding: .6rem 1.1rem;
-  cursor: pointer;
-  transition: all .18s;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius-sm);
+color: var(–text-2);
+font-family: var(–font-body);
+font-size: .8rem; font-weight: 500;
+padding: .6rem 1.1rem;
+cursor: pointer;
+transition: all .18s;
 }
 
-.btn-secondary:hover { border-color: var(--border2); color: var(--text); }
-
-/* ── Edit modal overlay (same as modal-overlay above) ── */
+.btn-secondary:hover { border-color: var(–border2); color: var(–text); }
 
 /* ── Toast ── */
 .toast {
-  position: fixed; bottom: 2rem; right: 2rem;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: .78rem;
-  font-weight: 500;
-  padding: .8rem 1.2rem;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-lg);
-  z-index: 999;
-  transform: translateX(120%) scale(.95);
-  opacity: 0;
-  transition: all .3s cubic-bezier(.34,1.4,.64,1);
-  max-width: 300px;
+position: fixed; bottom: 2rem; right: 2rem;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-left: 3px solid var(–accent);
+color: var(–text);
+font-family: var(–font-body);
+font-size: .78rem;
+font-weight: 500;
+padding: .8rem 1.2rem;
+border-radius: var(–radius-sm);
+box-shadow: var(–shadow-lg);
+z-index: 999;
+transform: translateX(120%) scale(.95);
+opacity: 0;
+transition: all .3s cubic-bezier(.34,1.4,.64,1);
+max-width: 300px;
 }
 
 .toast.show { transform: translateX(0) scale(1); opacity: 1; }
-.toast.error { border-left-color: var(--danger); }
-.toast.success { border-left-color: var(--success); }
+.toast.error   { border-left-color: var(–danger); }
+.toast.success { border-left-color: var(–success); }
 
 /* ── Animations ── */
 @keyframes slideDown { from { opacity:0; transform:translateY(-18px); } to { opacity:1; transform:translateY(0); } }
@@ -619,21 +617,23 @@ select option { background: var(--surface2); }
 
 /* ── Responsive ── */
 @media (max-width: 680px) {
-  .brand-title { font-size: 1.7rem; }
-  .stats-row { gap: .4rem; }
-  .stat-num { font-size: 1.4rem; }
-  .form-grid { grid-template-columns: 1fr; }
-  .tbl-head, .product-row { grid-template-columns: 1fr 90px 40px; }
-  .th:nth-child(2), .th:nth-child(3), .cat-cell, .product-qty-cell { display: none; }
-  .hist-head, .hist-row { grid-template-columns: 100px 1fr 70px; }
-  .hist-delta { display: none; }
+.brand-title { font-size: 1.7rem; }
+.stats-row { gap: .4rem; }
+.stat-num { font-size: 1.4rem; }
+.form-grid { grid-template-columns: 1fr; }
+.tbl-head, .product-row { grid-template-columns: 1fr 90px 40px; }
+.th:nth-child(2), .th:nth-child(3), .cat-cell, .product-qty-cell { display: none; }
+.hist-head, .hist-row { grid-template-columns: 100px 1fr 70px; }
+.hist-delta { display: none; }
 }
 </style>
+
 </head>
 <body>
 <div class="container">
 
   <!-- Header -->
+
   <header>
     <div class="header-brand">
       <span class="brand-eyebrow">Controle de Inventário</span>
@@ -656,144 +656,235 @@ select option { background: var(--surface2); }
   </header>
 
   <!-- Tabs -->
+
   <div class="tabs">
     <button class="tab active" onclick="mudarTab('estoque')">📦 Estoque</button>
     <button class="tab"        onclick="mudarTab('movimentacao')">↕️ Movimentação</button>
     <button class="tab"        onclick="mudarTab('categorias')">🏷️ Categorias</button>
     <button class="tab"        onclick="mudarTab('historico')">📋 Histórico</button>
+    <button class="tab"        onclick="mudarTab('ordemservico')">📋 Ordem de Serviço</button>
   </div>
 
   <!-- ══ ESTOQUE ══ -->
+
   <div class="panel active" id="panel-estoque">
 
-    <div class="card" style="margin-bottom:1.25rem;">
-      <div class="card-header">
-        <span class="card-title">Adicionar produto</span>
+```
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="card-header">
+    <span class="card-title">Adicionar produto</span>
+  </div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="field">
+        <label>Nome do Produto</label>
+        <input type="text" id="nomeProduto" placeholder="Ex: Caneta azul, Camiseta P…" autocomplete="off">
       </div>
-      <div class="card-body">
-        <div class="form-grid">
-          <div class="field">
-            <label>Nome do Produto</label>
-            <input type="text" id="nomeProduto" placeholder="Ex: Caneta azul, Camiseta P…" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>Categoria</label>
-            <select id="catProduto"><option value="">— Sem categoria —</option></select>
-          </div>
-          <div class="field">
-            <label>Quantidade</label>
-            <input type="number" id="qtdProduto" placeholder="0" min="0">
-          </div>
-          <button class="btn-primary" onclick="adicionarProduto()">+ Adicionar</button>
-        </div>
+      <div class="field">
+        <label>Categoria</label>
+        <select id="catProduto"><option value="">— Sem categoria —</option></select>
       </div>
+      <div class="field">
+        <label>Quantidade</label>
+        <input type="number" id="qtdProduto" placeholder="0" min="0">
+      </div>
+      <button class="btn-primary" onclick="adicionarProduto()">+ Adicionar</button>
     </div>
+  </div>
+</div>
 
-    <div class="toolbar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Buscar produto…" oninput="renderEstoque()">
-      </div>
-      <button class="btn-ghost" onclick="exportarCSV()">↓ Exportar CSV</button>
-      <button class="btn-ghost" onclick="gerarPDF()" style="border-color:#c0392b33;color:#c0392b">📄 Gerar PDF</button>
-      <button class="btn-ghost danger" onclick="limparTudo()">✕ Limpar tudo</button>
-    </div>
+<div class="toolbar">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Buscar produto…" oninput="renderEstoque()">
+  </div>
+  <button class="btn-ghost" onclick="exportarCSV()">↓ Exportar CSV</button>
+  <button class="btn-ghost" onclick="gerarPDF()" style="border-color:#c0392b33;color:#c0392b">📄 Gerar PDF</button>
+  <button class="btn-ghost danger" onclick="limparTudo()">✕ Limpar tudo</button>
+</div>
 
-    <div class="chips" id="filterChips"></div>
+<div class="chips" id="filterChips"></div>
 
-    <div class="card" style="overflow:hidden;">
-      <div class="tbl-head">
-        <span class="th">Produto</span>
-        <span class="th">Categoria</span>
-        <span class="th">Qtd</span>
-        <span class="th">Ajustar</span>
-        <span class="th">Del</span>
-      </div>
-      <div class="product-list" id="productList"></div>
-      <div class="empty-state" id="emptyState">
-        <div class="empty-icon">📭</div>
-        <div class="empty-text">Nenhum produto no estoque ainda.<br>Adicione o primeiro acima!</div>
-      </div>
-    </div>
+<div class="card" style="overflow:hidden;">
+  <div class="tbl-head">
+    <span class="th">Produto</span>
+    <span class="th">Categoria</span>
+    <span class="th">Qtd</span>
+    <span class="th">Ajustar</span>
+    <span class="th">Del</span>
+  </div>
+  <div class="product-list" id="productList"></div>
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">📭</div>
+    <div class="empty-text">Nenhum produto no estoque ainda.<br>Adicione o primeiro acima!</div>
+  </div>
+</div>
+```
+
   </div>
 
   <!-- ══ MOVIMENTAÇÃO ══ -->
+
   <div class="panel" id="panel-movimentacao">
 
-    <!-- Cabeçalho da movimentação -->
-    <div class="card" style="margin-bottom:1.25rem;">
-      <div class="card-header"><span class="card-title">Dados da Movimentação</span></div>
-      <div class="card-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:.75rem;">
-          <div class="field">
-            <label>Responsável *</label>
-            <input type="text" id="movResponsavel" placeholder="Nome de quem está fazendo" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>Evento / Destino (opcional)</label>
-            <input type="text" id="movEvento" placeholder="Ex: Festa Junina, Obra Bloco B…" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>Tipo de Movimentação</label>
-            <div style="display:flex;gap:.5rem;height:2.5rem;align-items:stretch">
-              <button id="btnTipoEntrada" class="tipo-toggle active-entrada" onclick="setTipoMov('entrada')" style="flex:1;border-radius:var(--radius-sm);border:1.5px solid var(--accent);background:var(--accent-lt);color:var(--accent);font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s">↑ Entrada</button>
-              <button id="btnTipoSaida"   class="tipo-toggle" onclick="setTipoMov('saida')"   style="flex:1;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:transparent;color:var(--text-2);font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s">↓ Saída</button>
-            </div>
-          </div>
+```
+<!-- Cabeçalho da movimentação -->
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="card-header"><span class="card-title">Dados da Movimentação</span></div>
+  <div class="card-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:.75rem;">
+      <div class="field">
+        <label>Responsável *</label>
+        <input type="text" id="movResponsavel" placeholder="Nome de quem está fazendo" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Evento / Destino (opcional)</label>
+        <input type="text" id="movEvento" placeholder="Ex: Festa Junina, Obra Bloco B…" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Tipo de Movimentação</label>
+        <div style="display:flex;gap:.5rem;height:2.5rem;align-items:stretch">
+          <button id="btnTipoEntrada" class="tipo-toggle active-entrada" onclick="setTipoMov('entrada')" style="flex:1;border-radius:var(--radius-sm);border:1.5px solid var(--accent);background:var(--accent-lt);color:var(--accent);font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s">↑ Entrada</button>
+          <button id="btnTipoSaida"   class="tipo-toggle" onclick="setTipoMov('saida')"   style="flex:1;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:transparent;color:var(--text-2);font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s">↓ Saída</button>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Lista de itens -->
-    <div class="card" style="margin-bottom:1.25rem;overflow:hidden;">
-      <div class="card-header" style="justify-content:space-between">
-        <span class="card-title">Itens da Movimentação</span>
-        <button class="btn-ghost" style="font-size:.75rem;padding:.4rem .9rem" onclick="adicionarLinhaItem()">+ Adicionar item</button>
+<!-- Lista de itens -->
+<div class="card" style="margin-bottom:1.25rem;overflow:hidden;">
+  <div class="card-header" style="justify-content:space-between">
+    <span class="card-title">Itens da Movimentação</span>
+    <button class="btn-ghost" style="font-size:.75rem;padding:.4rem .9rem" onclick="adicionarLinhaItem()">+ Adicionar item</button>
+  </div>
+  <div id="movItensWrap" style="padding:1rem 1.4rem;display:flex;flex-direction:column;gap:.6rem;">
+    <!-- linhas adicionadas dinamicamente -->
+  </div>
+  <div id="movItensEmpty" style="padding:2rem;text-align:center;color:var(--text-3);font-size:.82rem;display:none;">
+    Nenhum item adicionado ainda. Clique em "+ Adicionar item" acima.
+  </div>
+</div>
+
+<!-- Rodapé de ação -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+  <div id="movResumo" style="font-size:.82rem;color:var(--text-2)"></div>
+  <div style="display:flex;gap:.75rem;">
+    <button class="btn-ghost" onclick="limparMov()">✕ Limpar tudo</button>
+    <button class="btn-primary" id="btnConfirmarMov" onclick="confirmarMov()">✅ Confirmar movimentação</button>
+  </div>
+</div>
+
+<!-- Últimas movimentações -->
+<div class="card" style="overflow:hidden;">
+  <div class="card-header" style="justify-content:space-between">
+    <span class="card-title">Movimentações</span>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn-ghost" style="font-size:.7rem;padding:.35rem .8rem;border-color:#c0392b33;color:#c0392b" onclick="gerarPDFMovimentacoes()">📄 Gerar PDF</button>
+      <button class="btn-ghost" style="font-size:.7rem;padding:.35rem .8rem" onclick="mudarTab('historico')">Ver histórico →</button>
+    </div>
+  </div>
+  <!-- Filtro de mês -->
+  <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1.2rem;border-bottom:1.5px solid var(--border);background:var(--surface2);flex-wrap:wrap">
+    <span style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)">Filtrar por mês</span>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;flex:1" id="movMesChips"></div>
+    <div style="display:flex;gap:.4rem;margin-left:auto">
+      <select id="movTipoFiltro" onchange="setMovFiltroTipo(this.value)"
+        style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.78rem;padding:.3rem .6rem;outline:none;cursor:pointer">
+        <option value="todos">Entrada + Saída</option>
+        <option value="entrada">Só Entradas</option>
+        <option value="saida">Só Saídas</option>
+      </select>
+    </div>
+  </div>
+  <div id="movRecentList"></div>
+</div>
+```
+
+  </div>
+
+  <!-- ══ ORDEM DE SERVIÇO ══ -->
+
+  <div class="panel" id="panel-ordemservico">
+
+```
+<!-- Dados da OS -->
+<div class="card" style="margin-bottom:1.1rem;">
+  <div class="card-header"><span class="card-title">Dados da Ordem de Serviço</span></div>
+  <div class="card-body">
+    <div style="display:grid;grid-template-columns:120px 1fr 1fr;gap:.65rem;margin-bottom:.65rem;">
+      <div class="field">
+        <label>Nº da OS</label>
+        <input type="text" id="osNumero" placeholder="OS-001" autocomplete="off">
       </div>
-      <div id="movItensWrap" style="padding:1rem 1.4rem;display:flex;flex-direction:column;gap:.6rem;">
-        <!-- linhas adicionadas dinamicamente -->
+      <div class="field">
+        <label>Solicitante</label>
+        <input type="text" id="osSolicitante" placeholder="Nome do responsável" autocomplete="off">
       </div>
-      <div id="movItensEmpty" style="padding:2rem;text-align:center;color:var(--text-3);font-size:.82rem;display:none;">
-        Nenhum item adicionado ainda. Clique em "+ Adicionar item" acima.
+      <div class="field">
+        <label>Setor / Departamento</label>
+        <input type="text" id="osSetor" placeholder="Ex: Almoxarifado, Produção…" autocomplete="off">
       </div>
     </div>
-
-    <!-- Rodapé de ação -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
-      <div id="movResumo" style="font-size:.82rem;color:var(--text-2)"></div>
-      <div style="display:flex;gap:.75rem;">
-        <button class="btn-ghost" onclick="limparMov()">✕ Limpar tudo</button>
-        <button class="btn-primary" id="btnConfirmarMov" onclick="confirmarMov()">✅ Confirmar movimentação</button>
+    <div style="display:grid;grid-template-columns:1fr 150px;gap:.65rem;">
+      <div class="field">
+        <label>Evento / Destino</label>
+        <input type="text" id="osEvento" placeholder="Ex: Festa Junina, Reforma Bloco B…" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Data de Entrega</label>
+        <input type="date" id="osData">
       </div>
     </div>
-
-    <!-- Últimas movimentações -->
-    <div class="card" style="overflow:hidden;">
-      <div class="card-header" style="justify-content:space-between">
-        <span class="card-title">Movimentações</span>
-        <div style="display:flex;gap:.5rem">
-          <button class="btn-ghost" style="font-size:.7rem;padding:.35rem .8rem;border-color:#c0392b33;color:#c0392b" onclick="gerarPDFMovimentacoes()">📄 Gerar PDF</button>
-          <button class="btn-ghost" style="font-size:.7rem;padding:.35rem .8rem" onclick="mudarTab('historico')">Ver histórico →</button>
-        </div>
-      </div>
-      <!-- Filtro de mês -->
-      <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1.2rem;border-bottom:1.5px solid var(--border);background:var(--surface2);flex-wrap:wrap">
-        <span style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)">Filtrar por mês</span>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;flex:1" id="movMesChips"></div>
-        <div style="display:flex;gap:.4rem;margin-left:auto">
-          <select id="movTipoFiltro" onchange="setMovFiltroTipo(this.value)"
-            style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.78rem;padding:.3rem .6rem;outline:none;cursor:pointer">
-            <option value="todos">Entrada + Saída</option>
-            <option value="entrada">Só Entradas</option>
-            <option value="saida">Só Saídas</option>
-          </select>
-        </div>
-      </div>
-      <div id="movRecentList"></div>
+    <div class="field" style="margin-top:.65rem;">
+      <label>Observações</label>
+      <input type="text" id="osObs" placeholder="Informações adicionais para o almoxarife…" autocomplete="off">
     </div>
+  </div>
+</div>
+
+<!-- Itens da OS -->
+<div class="card" style="margin-bottom:1.1rem;overflow:hidden;">
+  <div class="card-header" style="justify-content:space-between">
+    <span class="card-title">Itens Solicitados</span>
+    <button class="btn-ghost" style="font-size:.75rem;padding:.38rem .85rem" onclick="osAdicionarItem()">+ Adicionar item</button>
+  </div>
+
+  <!-- cabeçalho colunas -->
+  <div style="display:grid;grid-template-columns:28px 1fr 110px 1fr 32px;gap:.5rem;padding:.45rem 1.25rem;background:var(--surface2);border-bottom:1.5px solid var(--border)">
+    <span class="th" style="text-align:center">#</span>
+    <span class="th">Produto</span>
+    <span class="th" style="text-align:center">Qtd Solicitada</span>
+    <span class="th">Observação do item</span>
+    <span class="th"></span>
+  </div>
+
+  <div id="osItensWrap" style="padding:.75rem 1.25rem;display:flex;flex-direction:column;gap:.5rem;min-height:60px;"></div>
+  <div id="osItensEmpty" style="padding:2rem;text-align:center;color:var(--text-3);font-size:.82rem;display:none;">
+    Nenhum item adicionado. Clique em "+ Adicionar item" acima.
+  </div>
+</div>
+
+<!-- Ações -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:.75rem;">
+  <div id="osResumo" style="font-size:.82rem;color:var(--text-2)"></div>
+  <div style="display:flex;gap:.65rem;">
+    <button class="btn-ghost" onclick="osLimpar()">✕ Limpar</button>
+    <button class="btn-primary" onclick="osGerarPDF()">🖨️ Gerar e Imprimir OS</button>
+  </div>
+</div>
+
+<!-- OSs geradas (histórico local) -->
+<div class="card" style="overflow:hidden;">
+  <div class="card-header"><span class="card-title">Ordens de Serviço Geradas</span></div>
+  <div id="osHistoricoList"></div>
+</div>
+```
+
   </div>
 
   <!-- ══ CATEGORIAS ══ -->
+
   <div class="panel" id="panel-categorias">
     <div class="card" style="margin-bottom:1.5rem;">
       <div class="card-header"><span class="card-title">Nova Categoria</span></div>
@@ -815,6 +906,7 @@ select option { background: var(--surface2); }
   </div>
 
   <!-- ══ HISTÓRICO ══ -->
+
   <div class="panel" id="panel-historico">
     <div class="toolbar">
       <div class="search-box">
@@ -874,6 +966,7 @@ select option { background: var(--surface2); }
 </div>
 
 <!-- ── Modal de Edição ── -->
+
 <div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
   <div class="modal">
     <div class="modal-header">
@@ -923,6 +1016,7 @@ function carregar(){
   try{produtos  =JSON.parse(localStorage.getItem(SK.p))||[];}catch{produtos=[];}
   try{categorias=JSON.parse(localStorage.getItem(SK.c))||[];}catch{categorias=[];}
   try{historico =JSON.parse(localStorage.getItem(SK.h))||[];}catch{historico=[];}
+  osCarregar();
   renderTudo();
 }
 function salvar(){
@@ -1005,12 +1099,13 @@ function deletarCategoria(id){
 
 // ── Tabs ──
 function mudarTab(nome){
-  const ns=['estoque','movimentacao','categorias','historico'];
+  const ns=['estoque','movimentacao','ordemservico','categorias','historico'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ns[i]===nome));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+nome).classList.add('active');
   if(nome==='historico')renderHistorico();
   if(nome==='movimentacao'){popularSelectMov();renderMovRecent();renderMovMesChips();if(!movItens.length)adicionarLinhaItem();}
+  if(nome==='ordemservico'){osPopularSelects();osRenderHistorico();if(!osItens.length)osAdicionarItem();}
 }
 
 // ── Render ──
@@ -1686,11 +1781,395 @@ document.addEventListener('keydown',e=>{
 
 carregar();
 </script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
 <script>
 function checarJsPDF() {
   return window.jspdf && window.jspdf.jsPDF;
+}
+
+// ══════════════════════════════════════════
+// ORDEM DE SERVIÇO
+// ══════════════════════════════════════════
+let osItens = [];
+let osItemCounter = 0;
+let osHistorico = []; // OSs já geradas (salvas em localStorage)
+
+const OS_SK = 'estq_os_historico';
+
+function osCarregar(){
+  try{ osHistorico = JSON.parse(localStorage.getItem(OS_SK)) || []; }catch{ osHistorico=[]; }
+}
+
+function osSalvarHistorico(){
+  localStorage.setItem(OS_SK, JSON.stringify(osHistorico));
+}
+
+// Gerar número automático de OS
+function osProximoNumero(){
+  const n = (osHistorico.length + 1).toString().padStart(3, '0');
+  return 'OS-' + n;
+}
+
+function osPopularSelects(){
+  document.querySelectorAll('.os-item-select').forEach(sel => {
+    const val = sel.value;
+    sel.innerHTML = '<option value="">— Produto —</option>'
+      + produtos.map(p => `<option value="${p.id}"${String(val)===String(p.id)?' selected':''}>${esc(p.nome)} (disp: ${p.quantidade})</option>`).join('');
+  });
+  // auto-fill OS number if empty
+  const numEl = document.getElementById('osNumero');
+  if(numEl && !numEl.value) numEl.value = osProximoNumero();
+  // default date = today
+  const dtEl = document.getElementById('osData');
+  if(dtEl && !dtEl.value) dtEl.value = new Date().toISOString().slice(0,10);
+}
+
+function osAdicionarItem(){
+  const tid = ++osItemCounter;
+  osItens.push({tid, prodId:'', qtd:1, obs:''});
+  osRenderItens();
+  setTimeout(()=>{
+    const el = document.querySelector(`[data-os-tid="${tid}"] .os-item-select`);
+    if(el) el.focus();
+  }, 50);
+}
+
+function osRemoverItem(tid){
+  osItens = osItens.filter(x => x.tid !== tid);
+  osRenderItens();
+}
+
+function osRenderItens(){
+  const wrap  = document.getElementById('osItensWrap');
+  const empty = document.getElementById('osItensEmpty');
+  if(!wrap) return;
+  if(!osItens.length){
+    wrap.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    osAtualizarResumo(); return;
+  }
+  if(empty) empty.style.display = 'none';
+
+  const inp = 'background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:.85rem;padding:.5rem .75rem;outline:none;width:100%;-moz-appearance:textfield';
+
+  wrap.innerHTML = osItens.map((item, idx) => {
+    const opts = '<option value="">— Produto —</option>'
+      + produtos.map(p => `<option value="${p.id}"${String(item.prodId)===String(p.id)?' selected':''}>${esc(p.nome)} (disp: ${p.quantidade})</option>`).join('');
+
+    // warn se qtd > disponível
+    const p = produtos.find(x => String(x.id) === String(item.prodId));
+    const insuf = p && item.qtd > p.quantidade;
+    const qtdStyle = insuf ? inp + ';border-color:var(--warning);color:var(--warning)' : inp;
+
+    return `<div data-os-tid="${item.tid}" style="display:grid;grid-template-columns:28px 1fr 110px 1fr 32px;gap:.5rem;align-items:center;padding:.6rem .5rem;background:var(--surface2);border:1.5px solid ${insuf?'var(--warning)':'var(--border)'};border-radius:var(--radius-sm);animation:rowIn .2s ease">
+      <span style="font-size:.72rem;color:var(--text-3);text-align:center;font-weight:600">${idx+1}</span>
+      <select class="os-item-select" onchange="osUpdateProd(${item.tid},this.value)" style="${inp};transition:border-color .15s">
+        ${opts}
+      </select>
+      <input type="number" min="1" value="${item.qtd}" placeholder="Qtd"
+        onchange="osUpdateQtd(${item.tid},this.value)"
+        style="${qtdStyle};text-align:center">
+      <input type="text" value="${esc(item.obs)}" placeholder="Obs. deste item…"
+        oninput="osUpdateObs(${item.tid},this.value)"
+        style="background:transparent;border:none;border-bottom:1.5px dashed var(--border2);border-radius:0;color:var(--text-2);font-family:var(--font-body);font-size:.82rem;padding:.35rem .1rem;outline:none;width:100%">
+      <button onclick="osRemoverItem(${item.tid})"
+        style="width:28px;height:28px;border:none;background:transparent;cursor:pointer;color:var(--text-3);font-size:.88rem;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:all .15s"
+        onmouseover="this.style.background='var(--danger-lt)';this.style.color='var(--danger)'"
+        onmouseout="this.style.background='transparent';this.style.color='var(--text-3)'">✕</button>
+    </div>
+    ${insuf ? `<div style="grid-column:2/-1;font-size:.7rem;color:var(--warning);padding:.1rem .5rem .3rem">⚠️ Quantidade solicitada maior que o estoque disponível (${p.quantidade} un.)</div>` : ''}`;
+  }).join('');
+  osAtualizarResumo();
+}
+
+function osUpdateProd(tid, val){ const i=osItens.find(x=>x.tid===tid); if(i) i.prodId=val; osRenderItens(); }
+function osUpdateQtd(tid, val){ const i=osItens.find(x=>x.tid===tid); if(i) i.qtd=Math.max(1,parseInt(val)||1); osRenderItens(); }
+function osUpdateObs(tid, val){ const i=osItens.find(x=>x.tid===tid); if(i) i.obs=val; }
+
+function osAtualizarResumo(){
+  const el = document.getElementById('osResumo');
+  if(!el) return;
+  const validos = osItens.filter(x => x.prodId);
+  const totalQtd = validos.reduce((a,x)=>a+(parseInt(x.qtd)||0),0);
+  el.innerHTML = validos.length
+    ? `<span>${validos.length} produto(s) &nbsp;·&nbsp; ${totalQtd} unidade(s) solicitadas</span>`
+    : '';
+}
+
+function osLimpar(){
+  osItens = []; osItemCounter = 0;
+  osRenderItens();
+  document.getElementById('osItensEmpty').style.display = 'block';
+  document.getElementById('osNumero').value = osProximoNumero();
+  document.getElementById('osSolicitante').value = '';
+  document.getElementById('osSetor').value = '';
+  document.getElementById('osEvento').value = '';
+  document.getElementById('osObs').value = '';
+  document.getElementById('osData').value = new Date().toISOString().slice(0,10);
+}
+
+function osRenderHistorico(){
+  const wrap = document.getElementById('osHistoricoList');
+  if(!wrap) return;
+  if(!osHistorico.length){
+    wrap.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-3);font-size:.82rem">Nenhuma OS gerada ainda.</div>';
+    return;
+  }
+  wrap.innerHTML = [...osHistorico].reverse().map((os, ri) => {
+    const idx      = osHistorico.length - 1 - ri;
+    const d        = new Date(os.ts);
+    const dataStr  = d.toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'});
+    const hora     = d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    const totalQtd = os.itens.reduce((a,x)=>a+(parseInt(x.qtd)||0),0);
+    const pendente = !os.status || os.status === 'pendente';
+
+    // status badge
+    const statusBadge = pendente
+      ? `<span style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.2rem .6rem;border-radius:99px;background:var(--warning-lt);color:var(--warning)">⏳ Pendente</span>`
+      : `<span style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.2rem .6rem;border-radius:99px;background:var(--success-lt);color:var(--success)">✓ Executada</span>`;
+
+    // baixa executada info
+    const baixaInfo = !pendente && os.baixaTs
+      ? `<div style="font-size:.68rem;color:var(--success);margin-top:.15rem">↓ Saída registrada em ${new Date(os.baixaTs).toLocaleDateString('pt-BR')} por ${esc(os.baixaResp||'—')}</div>`
+      : '';
+
+    return `<div style="display:flex;align-items:center;gap:.85rem;padding:.85rem 1.25rem;border-top:1.5px solid var(--border);transition:background .12s;flex-wrap:wrap;${!pendente?'opacity:.75':''}">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:.3rem">
+        <div style="background:var(--accent-lt);color:var(--accent);font-family:var(--font-disp);font-weight:700;font-size:.75rem;padding:.28rem .7rem;border-radius:4px;white-space:nowrap">${esc(os.numero)}</div>
+        ${statusBadge}
+      </div>
+      <div style="flex:1;min-width:150px">
+        <div style="font-weight:600;font-size:.88rem">${esc(os.evento||'Sem evento')}</div>
+        <div style="font-size:.72rem;color:var(--text-3);margin-top:.1rem">
+          👤 ${esc(os.solicitante||'—')} &nbsp;·&nbsp; ${esc(os.setor||'—')} &nbsp;·&nbsp; ${os.itens.length} item(s) · ${totalQtd} un.
+        </div>
+        ${baixaInfo}
+      </div>
+      <div style="font-size:.72rem;color:var(--text-3);white-space:nowrap">📅 ${dataStr}, ${hora}</div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+        ${pendente ? `<button onclick="osAbrirBaixa(${idx})"
+          style="background:var(--success);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .85rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
+          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">↓ Dar baixa</button>` : ''}
+        <button onclick="osReimprimirPDF(${idx})"
+          style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .8rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
+          onmouseover="this.style.background='var(--accent-dk)'" onmouseout="this.style.background='var(--accent)'">🖨️ Reimprimir</button>
+        <button onclick="osDeletar(${idx})"
+          style="background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-3);font-size:.75rem;padding:.33rem .6rem;cursor:pointer;transition:all .15s"
+          onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-3)'">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function osDeletar(idx){
+  if(!confirm('Remover esta OS do histórico?')) return;
+  osHistorico.splice(idx,1);
+  osSalvarHistorico();
+  osRenderHistorico();
+  toast('OS removida','success');
+}
+
+function osReimprimirPDF(idx){
+  if(!checarJsPDF()){toast('Biblioteca PDF carregando, tente novamente!','error');return;}
+  const os = osHistorico[idx];
+  if(!os) return;
+  _osGerarPDFDados(os);
+}
+
+function osGerarPDF(){
+  if(!checarJsPDF()){toast('Biblioteca PDF carregando, tente novamente!','error');return;}
+
+  const numero     = document.getElementById('osNumero').value.trim() || osProximoNumero();
+  const solicitante= document.getElementById('osSolicitante').value.trim();
+  const setor      = document.getElementById('osSetor').value.trim();
+  const evento     = document.getElementById('osEvento').value.trim();
+  const dataEntrega= document.getElementById('osData').value;
+  const obs        = document.getElementById('osObs').value.trim();
+
+  if(!solicitante){ toast('Informe o solicitante!','error'); document.getElementById('osSolicitante').focus(); return; }
+
+  const validos = osItens.filter(x => x.prodId && (parseInt(x.qtd)||0) > 0);
+  if(!validos.length){ toast('Adicione pelo menos um item!','error'); return; }
+
+  const itensOS = validos.map(item => {
+    const p = produtos.find(x => String(x.id)===String(item.prodId));
+    return { prodId:item.prodId, prodNome: p ? p.nome : '?', qtd: parseInt(item.qtd)||0, obs: item.obs };
+  });
+
+  const dataEntregaFmt = dataEntrega
+    ? new Date(dataEntrega + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'})
+    : '-';
+
+  const os = { numero, solicitante, setor, evento, obs, dataEntrega, dataEntregaFmt, itens: itensOS, ts: new Date().toISOString(), status: 'pendente' };
+
+  // Salvar no histórico
+  osHistorico.push(os);
+  osSalvarHistorico();
+  osRenderHistorico();
+
+  _osGerarPDFDados(os);
+  toast('OS gerada e salva!', 'success');
+  osLimpar();
+}
+
+function _osGerarPDFDados(os){
+  const { jsPDF } = window.jspdf;
+  const doc   = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W     = doc.internal.pageSize.getWidth();
+  const agora = new Date();
+  const dataImp = agora.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+  const horaImp = agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  const totalQtd = os.itens.reduce((a,x)=>a+x.qtd,0);
+
+  // ── Cabeçalho azul ──
+  doc.setFillColor(14, 107, 168);
+  doc.rect(0, 0, W, 28, 'F');
+
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.text('ORDEM DE SERVICO', 14, 11);
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.text('Separacao de Materiais - Almoxarifado', 14, 17);
+  doc.text('Emitida em ' + dataImp + ' as ' + horaImp, 14, 22);
+
+  // Numero OS grande
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.setTextColor(255,255,200);
+  doc.text(os.numero, W - 14, 17, { align:'right' });
+
+  // ── Bloco de dados ──
+  let y = 34;
+  const col1 = 14, col2 = W/2 + 4;
+
+  // linha separadora teal
+  doc.setFillColor(13,148,136);
+  doc.rect(14, y, W-28, 1, 'F');
+  y += 4;
+
+  const campo = (label, val, x, yy, w) => {
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(7);
+    doc.setTextColor(100,120,140);
+    doc.text(label.toUpperCase(), x, yy);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(15,28,46);
+    doc.text(val || '-', x, yy+5);
+  };
+
+  campo('Solicitante',   os.solicitante,    col1,  y);
+  campo('Setor',         os.setor,          col2,  y);
+  y += 10;
+  campo('Evento / Destino', os.evento,      col1,  y);
+  campo('Data de Entrega',  os.dataEntregaFmt, col2, y);
+  y += 10;
+  if(os.obs){
+    campo('Observacoes', os.obs, col1, y);
+    y += 10;
+  }
+
+  doc.setFillColor(13,148,136);
+  doc.rect(14, y, W-28, 1, 'F');
+  y += 5;
+
+  // ── Tabela de itens ──
+  doc.autoTable({
+    startY: y,
+    margin: { left: 14, right: 14 },
+    head: [['#', 'Produto / Material', 'Qtd Solicitada', 'Obs.', 'Separado', 'Conferido']],
+    body: os.itens.map((item, idx) => [
+      idx + 1,
+      item.prodNome,
+      item.qtd,
+      item.obs || '-',
+      '',   // campo vazio p/ almoxarife preencher
+      '',   // campo vazio p/ conferência
+    ]),
+    styles: {
+      font:'helvetica', fontSize:9,
+      cellPadding:{ top:4, bottom:4, left:4, right:4 },
+      textColor:[15,28,46], lineColor:[200,210,220], lineWidth:0.3,
+    },
+    headStyles: {
+      fillColor:[14,107,168], textColor:[255,255,255],
+      fontStyle:'bold', fontSize:8,
+    },
+    alternateRowStyles: { fillColor:[245,248,252] },
+    columnStyles: {
+      0: { cellWidth:9,  halign:'center', textColor:[140,160,180] },
+      1: { cellWidth:'auto' },
+      2: { cellWidth:28, halign:'center', fontStyle:'bold', textColor:[14,107,168] },
+      3: { cellWidth:40 },
+      4: { cellWidth:22, halign:'center', fillColor:[250,255,250] },
+      5: { cellWidth:22, halign:'center', fillColor:[250,255,250] },
+    },
+  });
+
+  y = doc.lastAutoTable.finalY + 6;
+
+  // ── Rodapé de totais ──
+  doc.setFillColor(14,107,168);
+  doc.rect(14, y, W-28, 10, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8.5);
+  doc.text('TOTAL: ' + os.itens.length + ' produto(s)  |  ' + totalQtd + ' unidades', 18, y+6.5);
+  doc.setFontSize(7);
+  doc.setFont('helvetica','normal');
+  doc.text('Verifique as quantidades antes de assinar.', W-14, y+6.5, {align:'right'});
+
+  y += 14;
+
+  // ── Campos de assinatura ──
+  const assinY = Math.max(y + 8, 245);
+  const linhaW = 55;
+  const gap    = (W - 28 - 3*linhaW) / 2;
+
+  const assinaturas = ['Solicitante', 'Almoxarife', 'Conferente'];
+  assinaturas.forEach((nome, i) => {
+    const x = 14 + i * (linhaW + gap);
+    doc.setDrawColor(14, 107, 168);
+    doc.setLineWidth(0.5);
+    doc.line(x, assinY + 12, x + linhaW, assinY + 12);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(14,107,168);
+    doc.text(nome.toUpperCase(), x + linhaW/2, assinY + 17, {align:'center'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(130,150,170);
+    doc.text('Assinatura / Data', x + linhaW/2, assinY + 21, {align:'center'});
+  });
+
+  // Nome do solicitante pré-preenchido
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(15,28,46);
+  doc.text(os.solicitante || '', 14 + linhaW/2, assinY + 7, {align:'center'});
+
+  // ── Rodapé da página ──
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pageCount;i++){
+    doc.setPage(i);
+    doc.setFillColor(14,107,168);
+    doc.rect(0, 287, W, 10, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.text('EstoqueApp  |  ' + os.numero + '  |  ' + (os.evento||'Sem evento'), 14, 293);
+    doc.text('Pagina ' + i + ' de ' + pageCount, W-14, 293, {align:'right'});
+  }
+
+  const nomeArq = (os.numero + '_' + (os.evento||'os').replace(/[^a-zA-Z0-9]/g,'_')).toLowerCase();
+  doc.save(nomeArq + '.pdf');
 }
 
 function imprimirEvento(movId) {
@@ -2253,5 +2732,6 @@ function gerarPDF() {
   toast('PDF gerado com sucesso!', 'success');
 }
 </script>
+
 </body>
 </html>
