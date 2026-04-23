@@ -994,6 +994,52 @@ max-width: 300px;
   </div>
 </div>
 
+<!-- ── Modal Baixa OS ── -->
+
+<div class="modal-overlay" id="osBaixaOverlay" onclick="osFecharBaixa(event)">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header" style="border-bottom:3px solid var(--success)">
+      <span class="modal-title">↓ Dar Baixa no Estoque</span>
+      <button class="modal-close" onclick="osFecharBaixaDireto()">✕</button>
+    </div>
+
+```
+<!-- Info da OS -->
+<div style="padding:.9rem 1.25rem;background:var(--surface2);border-bottom:1.5px solid var(--border);display:flex;gap:1.5rem;flex-wrap:wrap">
+  <div><span style="font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3)">OS</span><br><strong id="baixaOsNumero" style="font-size:.88rem;color:var(--accent)"></strong></div>
+  <div><span style="font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3)">Evento</span><br><strong id="baixaOsEvento" style="font-size:.88rem"></strong></div>
+  <div><span style="font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3)">Solicitante</span><br><strong id="baixaOsSolicitante" style="font-size:.88rem"></strong></div>
+</div>
+
+<!-- Itens -->
+<div style="padding:.75rem 1.25rem;max-height:260px;overflow-y:auto">
+  <div style="display:grid;grid-template-columns:1fr 70px 70px;gap:.5rem;padding:.4rem 0;border-bottom:1.5px solid var(--border);margin-bottom:.25rem">
+    <span style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)">Produto</span>
+    <span style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);text-align:center">Solicitado</span>
+    <span style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);text-align:center">Disponível</span>
+  </div>
+  <div id="baixaItensList"></div>
+</div>
+
+<!-- Campos de execução -->
+<div style="padding:.9rem 1.25rem;border-top:1.5px solid var(--border);display:flex;flex-direction:column;gap:.7rem">
+  <div class="field">
+    <label>Responsável pela saída *</label>
+    <input type="text" id="baixaResponsavel" placeholder="Quem está retirando o material" autocomplete="off">
+  </div>
+  <div id="baixaAlerta" style="display:none;font-size:.78rem;color:var(--warning);background:var(--warning-lt);padding:.6rem .9rem;border-radius:var(--radius-sm);border-left:3px solid var(--warning)"></div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn-secondary" onclick="osFecharBaixaDireto()">Cancelar</button>
+  <button class="btn-primary" id="btnConfirmarBaixa" onclick="osConfirmarBaixa()"
+    style="background:var(--success);box-shadow:0 2px 8px rgba(5,150,105,.3)">↓ Confirmar saída</button>
+</div>
+```
+
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1771,7 +1817,7 @@ function toast(msg,tipo=''){
 }
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ fecharModalDireto(); fecharConfirmMovDireto(); }
+  if(e.key==='Escape'){ fecharModalDireto(); fecharConfirmMovDireto(); osFecharBaixaDireto(); }
   if(e.key!=='Enter')return;
   const id=document.activeElement.id;
   if(['nomeProduto','qtdProduto','catProduto'].includes(id))adicionarProduto();
@@ -1963,6 +2009,93 @@ function osRenderHistorico(){
       </div>
     </div>`;
   }).join('');
+}
+
+function osAbrirBaixa(idx){
+  const os = osHistorico[idx];
+  if(!os) return;
+
+  // Preencher info
+  document.getElementById('baixaOsNumero').textContent    = os.numero;
+  document.getElementById('baixaOsEvento').textContent    = os.evento || 'Sem evento';
+  document.getElementById('baixaOsSolicitante').textContent = os.solicitante || '—';
+  document.getElementById('baixaResponsavel').value       = os.solicitante || '';
+  document.getElementById('baixaAlerta').style.display    = 'none';
+
+  // Montar lista de itens com disponibilidade
+  let temInsuficiente = false;
+  document.getElementById('baixaItensList').innerHTML = os.itens.map((item,i) => {
+    const p = produtos.find(x => String(x.id)===String(item.prodId));
+    const disp = p ? p.quantidade : 0;
+    const insuf = item.qtd > disp;
+    if(insuf) temInsuficiente = true;
+    return `<div style="display:grid;grid-template-columns:1fr 70px 70px;gap:.5rem;padding:.55rem 0;border-bottom:1px solid var(--border);align-items:center">
+      <div>
+        <div style="font-size:.86rem;font-weight:500">${esc(item.prodNome)}</div>
+        ${item.obs ? `<div style="font-size:.7rem;color:var(--text-3)">${esc(item.obs)}</div>` : ''}
+      </div>
+      <div style="text-align:center;font-family:var(--font-disp);font-weight:700;font-size:.95rem;color:var(--accent)">${item.qtd}</div>
+      <div style="text-align:center;font-family:var(--font-disp);font-weight:700;font-size:.95rem;color:${insuf ? 'var(--danger)' : 'var(--success)'}">${disp}${insuf ? ' ⚠️' : ''}</div>
+    </div>`;
+  }).join('');
+
+  if(temInsuficiente){
+    const el = document.getElementById('baixaAlerta');
+    el.textContent = '⚠️ Alguns itens têm estoque insuficiente. A saída será registrada com a quantidade disponível.';
+    el.style.display = 'block';
+  }
+
+  // Guardar idx no botão para usar no confirmar
+  document.getElementById('btnConfirmarBaixa').dataset.osIdx = idx;
+
+  document.getElementById('osBaixaOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('baixaResponsavel').focus(), 200);
+}
+
+function osFecharBaixaDireto(){
+  document.getElementById('osBaixaOverlay').classList.remove('open');
+}
+
+function osFecharBaixa(e){
+  if(e.target === document.getElementById('osBaixaOverlay')) osFecharBaixaDireto();
+}
+
+function osConfirmarBaixa(){
+  const idx = parseInt(document.getElementById('btnConfirmarBaixa').dataset.osIdx);
+  const os  = osHistorico[idx];
+  if(!os) return;
+
+  const responsavel = document.getElementById('baixaResponsavel').value.trim();
+  if(!responsavel){ toast('Informe o responsável!','error'); document.getElementById('baixaResponsavel').focus(); return; }
+
+  const movId = 'mov_os_' + Date.now();
+  const obsGlobal = os.evento ? 'Evento: ' + os.evento : '';
+
+  let registrados = 0;
+  os.itens.forEach(item => {
+    const p = produtos.find(x => String(x.id)===String(item.prodId));
+    if(!p) return;
+    const qtd = Math.min(item.qtd, p.quantidade); // respeita disponível
+    if(qtd <= 0) return;
+    p.quantidade = Math.max(0, p.quantidade - qtd);
+    const obsItem = [obsGlobal, 'OS: ' + os.numero, item.obs].filter(Boolean).join(' · ');
+    reg('saida', p, -qtd, responsavel, obsItem, 0, movId);
+    registrados++;
+  });
+
+  if(registrados === 0){ toast('Nenhum item com estoque disponível!','error'); return; }
+
+  // Marcar OS como executada
+  os.status     = 'executada';
+  os.baixaTs    = new Date().toISOString();
+  os.baixaResp  = responsavel;
+
+  salvar();
+  osSalvarHistorico();
+  renderTudo();
+  osRenderHistorico();
+  osFecharBaixaDireto();
+  toast(`Saída de ${registrados} item(s) registrada!`, 'success');
 }
 
 function osDeletar(idx){
