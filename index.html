@@ -891,7 +891,8 @@ select { cursor: pointer; }
       <div id="osResumo" style="font-size:.82rem;color:var(--text-2)"></div>
       <div style="display:flex;gap:.65rem;">
         <button class="btn-ghost" onclick="osLimpar()">✕ Limpar</button>
-        <button class="btn-primary" onclick="osGerarPDF()">🖨️ Gerar e Imprimir OS</button>
+        <button class="btn-secondary" onclick="osGerarSalvar()">✅ Gerar OS</button>
+        <button class="btn-primary" onclick="osGerarEImprimir()">🖨️ Gerar e Imprimir</button>
       </div>
     </div>
 
@@ -2474,9 +2475,8 @@ function osReimprimirPDF(idx){
   _osGerarPDFDados(os);
 }
 
-function osGerarPDF(){
-  if(!checarJsPDF()){toast('Biblioteca PDF carregando, tente novamente!','error');return;}
-
+// Montar e validar OS — retorna objeto ou null
+function _osMontar(){
   const numero     = document.getElementById('osNumero').value.trim() || osProximoNumero();
   const solicitante= document.getElementById('osSolicitante').value.trim();
   const setor      = document.getElementById('osSetor').value.trim();
@@ -2484,10 +2484,10 @@ function osGerarPDF(){
   const dataEntrega= document.getElementById('osData').value;
   const obs        = document.getElementById('osObs').value.trim();
 
-  if(!solicitante){ toast('Informe o solicitante!','error'); document.getElementById('osSolicitante').focus(); return; }
+  if(!solicitante){ toast('Informe o solicitante!','error'); document.getElementById('osSolicitante').focus(); return null; }
 
   const validos = osItens.filter(x => x.prodId && (parseInt(x.qtd)||0) > 0);
-  if(!validos.length){ toast('Adicione pelo menos um item!','error'); return; }
+  if(!validos.length){ toast('Adicione pelo menos um item!','error'); return null; }
 
   const itensOS = validos.map(item => {
     const p = produtos.find(x => String(x.id)===String(item.prodId));
@@ -2498,17 +2498,35 @@ function osGerarPDF(){
     ? new Date(dataEntrega + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'})
     : '-';
 
-  const os = { numero, solicitante, setor, evento, obs, dataEntrega, dataEntregaFmt, itens: itensOS, ts: new Date().toISOString(), status: 'pendente' };
+  return { numero, solicitante, setor, evento, obs, dataEntrega, dataEntregaFmt, itens: itensOS, ts: new Date().toISOString(), status: 'pendente' };
+}
 
-  // Salvar no histórico
+// Só gera e salva, sem imprimir
+function osGerarSalvar(){
+  const os = _osMontar();
+  if(!os) return;
   osHistorico.push(os);
   osSalvarHistorico();
   osRenderHistorico();
-
-  _osGerarPDFDados(os);
   toast('OS gerada e salva!', 'success');
   osLimpar();
 }
+
+// Gera, salva e abre o PDF
+function osGerarEImprimir(){
+  if(!checarJsPDF()){ toast('Biblioteca PDF carregando, tente novamente!','error'); return; }
+  const os = _osMontar();
+  if(!os) return;
+  osHistorico.push(os);
+  osSalvarHistorico();
+  osRenderHistorico();
+  _osGerarPDFDados(os);
+  toast('OS gerada e impressa!', 'success');
+  osLimpar();
+}
+
+// Mantida para compatibilidade
+function osGerarPDF(){ osGerarEImprimir(); }
 
 function _osGerarPDFDados(os){
   const { jsPDF } = window.jspdf;
