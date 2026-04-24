@@ -2076,7 +2076,7 @@ function osRenderHistorico(){
         <button onclick="osReimprimirPDF(${idx})"
           style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .8rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
           onmouseover="this.style.background='var(--accent-dk)'" onmouseout="this.style.background='var(--accent)'">🖨️ Reimprimir OS</button>
-        ${os.retornado && os.itensRetornados ? `<button onclick="osReimprimirRetorno(${idx})"
+        ${os.retornado ? `<button onclick="osReimprimirRetorno(${idx})"
           style="background:var(--accent2-lt);color:var(--accent2);border:1.5px solid var(--accent2);border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .8rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
           onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">🖨️ PDF Retorno</button>` : ''}
         <button onclick="osDeletar(${idx})"
@@ -2292,7 +2292,21 @@ function osConfirmarRetorno(){
 function osReimprimirRetorno(idx){
   if(!checarJsPDF()){ toast('Biblioteca PDF carregando, tente novamente!','error'); return; }
   const os = osHistorico[idx];
-  if(!os || !os.itensRetornados){ toast('Dados de retorno não encontrados!','error'); return; }
+  if(!os){ toast('OS não encontrada!','error'); return; }
+
+  // Se não tem itensRetornados (OS retornada antes desta versão), reconstruir a partir dos itens da OS
+  if(!os.itensRetornados){
+    os.itensRetornados = os.itens.map(item => ({
+      prodNome:     item.prodNome,
+      qtdSaiu:      item.qtdBaixa || item.qtd,
+      qtdRetornou:  item.qtdBaixa || item.qtd, // assume retorno total se não há dados
+    }));
+    // Se foi parcial, não temos como saber as qtds exatas — avisar
+    if(os.retornoTipo === 'parcial'){
+      toast('Retorno parcial: quantidades exatas não disponíveis, usando valores da OS.', 'error');
+    }
+    osSalvarHistorico();
+  }
   _osGerarPDFRetorno(os);
 }
 
