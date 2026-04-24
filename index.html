@@ -2075,7 +2075,10 @@ function osRenderHistorico(){
         ${executada && !os.retornado ? `<button onclick="osAbrirRetorno(${idx})" style="background:var(--accent2-lt);color:var(--accent2);border:1.5px solid var(--accent2);border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .85rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">↑ Retornar</button>` : (executada && os.retornado ? `<span style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.2rem .6rem;border-radius:99px;background:var(--accent2-lt);color:var(--accent2)">✓ Retornado</span>` : '')}
         <button onclick="osReimprimirPDF(${idx})"
           style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .8rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
-          onmouseover="this.style.background='var(--accent-dk)'" onmouseout="this.style.background='var(--accent)'">🖨️ Reimprimir</button>
+          onmouseover="this.style.background='var(--accent-dk)'" onmouseout="this.style.background='var(--accent)'">🖨️ Reimprimir OS</button>
+        ${os.retornado && os.itensRetornados ? `<button onclick="osReimprimirRetorno(${idx})"
+          style="background:var(--accent2-lt);color:var(--accent2);border:1.5px solid var(--accent2);border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .8rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
+          onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">🖨️ PDF Retorno</button>` : ''}
         <button onclick="osDeletar(${idx})"
           style="background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text-3);font-size:.75rem;padding:.33rem .6rem;cursor:pointer;transition:all .15s"
           onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-3)'">✕</button>
@@ -2245,30 +2248,35 @@ function osConfirmarRetorno(){
   const responsavel = document.getElementById('retornoResponsavel').value.trim();
   if(!responsavel){ toast('Informe quem recebeu!','error'); document.getElementById('retornoResponsavel').focus(); return; }
 
-  const movId = 'mov_ret_' + Date.now();
-  let registrados = 0;
+  const movId   = 'mov_ret_' + Date.now();
+  const itensRetornados = [];
+  let   registrados = 0;
 
   os.itens.forEach((item, i) => {
-    const qtdInput = document.getElementById('retQtd_' + i);
-    const qtdRet   = parseInt(qtdInput ? qtdInput.value : 0) || 0;
-    if(qtdRet <= 0) return;
-
+    const qtdInput  = document.getElementById('retQtd_' + i);
+    const qtdRet    = parseInt(qtdInput ? qtdInput.value : 0) || 0;
+    const qtdSaiu   = item.qtdBaixa || item.qtd;
+    if(qtdRet <= 0){
+      itensRetornados.push({ prodNome: item.prodNome, qtdSaiu, qtdRetornou: 0 });
+      return;
+    }
     const p = produtos.find(x => String(x.id)===String(item.prodId));
     if(!p) return;
-
     p.quantidade += qtdRet;
     const obs = ['OS: ' + os.numero, os.evento ? 'Evento: ' + os.evento : '', 'Retorno'].filter(Boolean).join(' · ');
     reg('entrada', p, qtdRet, responsavel, obs, 0, movId);
+    itensRetornados.push({ prodNome: item.prodNome, qtdSaiu, qtdRetornou: qtdRet });
     registrados++;
   });
 
   if(registrados === 0){ toast('Nenhuma quantidade informada!','error'); return; }
 
   // Marcar OS como retornada
-  os.retornado    = true;
-  os.retornoTs    = new Date().toISOString();
-  os.retornoResp  = responsavel;
-  os.retornoTipo  = retornoTipo;
+  os.retornado       = true;
+  os.retornoTs       = new Date().toISOString();
+  os.retornoResp     = responsavel;
+  os.retornoTipo     = retornoTipo;
+  os.itensRetornados = itensRetornados;
 
   salvar();
   osSalvarHistorico();
@@ -2276,6 +2284,165 @@ function osConfirmarRetorno(){
   osRenderHistorico();
   osFecharRetornoDireto();
   toast('Retorno de ' + registrados + ' item(s) registrado!', 'success');
+
+  // Gerar PDF do retorno automaticamente
+  if(checarJsPDF()) _osGerarPDFRetorno(os);
+}
+
+function osReimprimirRetorno(idx){
+  if(!checarJsPDF()){ toast('Biblioteca PDF carregando, tente novamente!','error'); return; }
+  const os = osHistorico[idx];
+  if(!os || !os.itensRetornados){ toast('Dados de retorno não encontrados!','error'); return; }
+  _osGerarPDFRetorno(os);
+}
+
+function _osGerarPDFRetorno(os){
+  const { jsPDF } = window.jspdf;
+  const doc     = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W       = doc.internal.pageSize.getWidth();
+  const agora   = new Date();
+  const dataImp = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+  const horaImp = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+  const dRet     = new Date(os.retornoTs);
+  const dataRet  = dRet.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+  const horaRet  = dRet.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  const tipo     = os.retornoTipo === 'total' ? 'Retorno Total' : 'Retorno Parcial';
+  const tipoClr  = os.retornoTipo === 'total' ? [13,148,136] : [217,119,6];
+
+  const totalSaiu    = os.itensRetornados.reduce((a,x)=>a+x.qtdSaiu, 0);
+  const totalRetornou= os.itensRetornados.reduce((a,x)=>a+x.qtdRetornou, 0);
+  const totalPendente= totalSaiu - totalRetornou;
+
+  // ── Cabeçalho ──
+  doc.setFillColor(...tipoClr);
+  doc.rect(0, 0, W, 24, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(14);
+  doc.text('COMPROVANTE DE RETORNO', 14, 10);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.text(tipo + '  |  ' + os.numero, 14, 16);
+  doc.text('Impresso em ' + dataImp + ' as ' + horaImp, W-14, 16, {align:'right'});
+
+  // ── Bloco de info ──
+  doc.setFillColor(248,247,244);
+  doc.setDrawColor(220,227,235);
+  doc.setLineWidth(0.3);
+  doc.rect(14, 30, W-28, 30, 'FD');
+
+  // faixa lateral colorida
+  doc.setFillColor(...tipoClr);
+  doc.rect(14, 30, 4, 30, 'F');
+
+  doc.setTextColor(100,120,140);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(7);
+  doc.text('ORDEM DE SERVICO', 22, 36);
+  doc.text('EVENTO', 22, 46);
+  doc.text('RECEBIDO POR', 90, 36);
+  doc.text('DATA DO RETORNO', 90, 46);
+  doc.text('TIPO', 155, 36);
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(15,28,46);
+  doc.text(os.numero, 22, 41);
+  doc.text(os.evento || '-', 22, 51);
+  doc.text(os.retornoResp || '-', 90, 41);
+  doc.text(dataRet + ' as ' + horaRet, 90, 51);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(...tipoClr);
+  doc.text(tipo, 155, 41);
+
+  // ── Tabela de itens retornados ──
+  const head = [['#', 'Produto', 'Qtd que Saiu', 'Qtd Retornada', 'Pendente']];
+  const body = os.itensRetornados.map((item, i) => {
+    const pend = item.qtdSaiu - item.qtdRetornou;
+    return [i+1, item.prodNome, item.qtdSaiu, item.qtdRetornou, pend > 0 ? pend : '-'];
+  });
+
+  doc.autoTable({
+    startY: 66,
+    margin: { left:14, right:14 },
+    head,
+    body,
+    styles: {
+      font:'helvetica', fontSize:9,
+      cellPadding:{top:3,bottom:3,left:4,right:4},
+      textColor:[15,28,46], lineColor:[220,227,235], lineWidth:0.3,
+    },
+    headStyles: { fillColor:tipoClr, textColor:[255,255,255], fontStyle:'bold', fontSize:8 },
+    alternateRowStyles: { fillColor:[245,248,252] },
+    columnStyles: {
+      0: { cellWidth:9,  halign:'center', textColor:[140,160,180] },
+      1: { cellWidth:'auto' },
+      2: { cellWidth:32, halign:'center', textColor:[192,57,43], fontStyle:'bold' },
+      3: { cellWidth:32, halign:'center', fontStyle:'bold' },
+      4: { cellWidth:28, halign:'center' },
+    },
+    didParseCell(data){
+      if(data.section!=='body') return;
+      if(data.column.index===3){
+        data.cell.styles.textColor = tipoClr;
+        data.cell.styles.fillColor = os.retornoTipo==='total' ? [209,250,229] : [255,248,235];
+      }
+      if(data.column.index===4 && data.cell.raw !== '-'){
+        data.cell.styles.textColor = [192,57,43];
+        data.cell.styles.fillColor = [254,226,226];
+      }
+    }
+  });
+
+  const finalY = doc.lastAutoTable.finalY;
+
+  // ── Barra de totais ──
+  doc.setFillColor(...tipoClr);
+  doc.rect(14, finalY+3, W-28, 12, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8.5);
+  doc.text('TOTAL RETORNADO: ' + totalRetornou + ' un.  de  ' + totalSaiu + ' un. que sairam', 18, finalY+10);
+  if(totalPendente > 0){
+    doc.setFontSize(8);
+    doc.text('Pendente: ' + totalPendente + ' un.', W-14, finalY+10, {align:'right'});
+  }
+
+  // ── Assinaturas ──
+  const assinY = Math.max(finalY + 24, 248);
+  const linhaW = 55;
+  const gap    = (W - 28 - 3*linhaW) / 2;
+  ['Solicitante / Resp. Saida', 'Almoxarife / Recebimento', 'Conferente'].forEach((nome,i)=>{
+    const x = 14 + i*(linhaW+gap);
+    doc.setDrawColor(...tipoClr);
+    doc.setLineWidth(0.5);
+    doc.line(x, assinY+12, x+linhaW, assinY+12);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...tipoClr);
+    doc.text(nome.toUpperCase(), x+linhaW/2, assinY+17, {align:'center'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(130,150,170);
+    doc.text('Assinatura / Data', x+linhaW/2, assinY+21, {align:'center'});
+  });
+
+  // ── Rodape ──
+  const pages = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    doc.setPage(i);
+    doc.setFillColor(...tipoClr);
+    doc.rect(0,287,W,10,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.text('EstoqueApp  |  Retorno - ' + os.numero + '  |  ' + (os.evento||''), 14, 293);
+    doc.text('Pagina ' + i + ' de ' + pages, W-14, 293, {align:'right'});
+  }
+
+  const nomeArq = ('retorno_' + os.numero + '_' + (os.evento||'os').replace(/[^a-zA-Z0-9]/g,'_')).toLowerCase();
+  doc.save(nomeArq + '.pdf');
 }
 
 function osDeletar(idx){
