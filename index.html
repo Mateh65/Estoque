@@ -1913,6 +1913,10 @@ const OS_SK = 'estq_os_historico';
 
 function osCarregar(){
   try{ osHistorico = JSON.parse(localStorage.getItem(OS_SK)) || []; }catch{ osHistorico=[]; }
+  // Migrar OSs antigas sem status
+  osHistorico.forEach(os => {
+    if(!os.status) os.status = 'pendente';
+  });
 }
 
 function osSalvarHistorico(){
@@ -2037,6 +2041,9 @@ function osRenderHistorico(){
     const hora     = d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
     const totalQtd = os.itens.reduce((a,x)=>a+(parseInt(x.qtd)||0),0);
     const pendente = !os.status || os.status === 'pendente';
+    // Auto-fix: se tem baixaTs mas status ainda pendente, corrigir
+    if(pendente && os.baixaTs) { os.status = 'executada'; osSalvarHistorico(); }
+    const executada = os.status === 'executada';
 
     // status badge
     const statusBadge = pendente
@@ -2048,7 +2055,7 @@ function osRenderHistorico(){
       ? `<div style="font-size:.68rem;color:var(--success);margin-top:.15rem">↓ Saída registrada em ${new Date(os.baixaTs).toLocaleDateString('pt-BR')} por ${esc(os.baixaResp||'—')}</div>`
       : '';
 
-    return `<div style="display:flex;align-items:center;gap:.85rem;padding:.85rem 1.25rem;border-top:1.5px solid var(--border);transition:background .12s;flex-wrap:wrap;${!pendente?'opacity:.75':''}">
+    return `<div style="display:flex;align-items:center;gap:.85rem;padding:.85rem 1.25rem;border-top:1.5px solid var(--border);transition:background .12s;flex-wrap:wrap">
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:.3rem">
         <div style="background:var(--accent-lt);color:var(--accent);font-family:var(--font-disp);font-weight:700;font-size:.75rem;padding:.28rem .7rem;border-radius:4px;white-space:nowrap">${esc(os.numero)}</div>
         ${statusBadge}
@@ -2065,7 +2072,7 @@ function osRenderHistorico(){
         ${pendente ? `<button onclick="osAbrirBaixa(${idx})"
           style="background:var(--success);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .85rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">↓ Dar baixa</button>` : ''}
-        ${!pendente && !os.retornado ? `<button onclick="osAbrirRetorno(${idx})" style="background:var(--accent2-lt);color:var(--accent2);border:1.5px solid var(--accent2);border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .85rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">↑ Retornar</button>` : (!pendente && os.retornado ? `<span style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.2rem .6rem;border-radius:99px;background:var(--accent2-lt);color:var(--accent2)">✓ Retornado</span>` : '')}
+        ${executada && !os.retornado ? `<button onclick="osAbrirRetorno(${idx})" style="background:var(--accent2-lt);color:var(--accent2);border:1.5px solid var(--accent2);border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .85rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">↑ Retornar</button>` : (executada && os.retornado ? `<span style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.2rem .6rem;border-radius:99px;background:var(--accent2-lt);color:var(--accent2)">✓ Retornado</span>` : '')}
         <button onclick="osReimprimirPDF(${idx})"
           style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font-disp);font-size:.7rem;font-weight:700;padding:.35rem .8rem;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.04em"
           onmouseover="this.style.background='var(--accent-dk)'" onmouseout="this.style.background='var(--accent)'">🖨️ Reimprimir</button>
